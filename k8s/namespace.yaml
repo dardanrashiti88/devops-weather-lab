@@ -1,0 +1,6 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: lab-project
+  labels:
+    name: lab-project 

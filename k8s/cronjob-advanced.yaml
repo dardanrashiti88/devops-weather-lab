@@ -1,0 +1,77 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: daily-maintenance-advanced
+  namespace: lab-project
+  labels:
+    app: daily-maintenance-advanced
+spec:
+  schedule: "0 2 * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 7
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: maintenance
+            image: mysql:8
+            command:
+            - /bin/bash
+            - -c
+            - |
+              echo "=== Daily Maintenance Started at $(date) ==="
+              
+              echo "Waiting for MySQL to be ready..."
+              until mysql -h mysql -u mysqladmin -p$MYSQL_ROOT_PASSWORD -e "SELECT 1" >/dev/null 2>&1; do
+                echo "MySQL not ready, waiting..."
+                sleep 5
+              done
+              echo "MySQL is ready!"
+              
+              BACKUP_DIR="/tmp/backups/$(date +%Y%m%d)"
+              mkdir -p $BACKUP_DIR
+
+              echo "Creating database backup..."
+              mysqldump -h mysql -u mysqladmin -p$MYSQL_ROOT_PASSWORD lab_db > $BACKUP_DIR/lab_db_backup.sql
+              
+              if [ $? -eq 0 ]; then
+                echo "Database backup completed successfully"
+                echo "Backup size: $(du -h $BACKUP_DIR/lab_db_backup.sql | cut -f1)"
+              else
+                echo "Database backup failed!"
+                exit 1
+              fi
+
+              echo "Performing database maintenance..."
+              mysql -h mysql -u mysqladmin -p$MYSQL_ROOT_PASSWORD lab_db -e "
+                OPTIMIZE TABLE users;
+                ANALYZE TABLE users;
+                SHOW TABLE STATUS;
+              "
+
+              echo "Cleaning up old backups..."
+              find /tmp/backups -type d -mtime +7 -exec rm -rf {} \; 2>/dev/null || true
+              
+              echo "=== Daily Maintenance Completed at $(date) ==="
+            env:
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: mysql-root-password
+            - name: MYSQL_DATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: mysql-database
+            resources:
+              requests:
+                memory: "256Mi"
+                cpu: "100m"
+              limits:
+                memory: "512Mi"
+                cpu: "200m"
+          restartPolicy: OnFailure
+          serviceAccountName: default 

@@ -1,0 +1,119 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "${BACKEND_PORT:-3000}:${BACKEND_PORT:-3000}"
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-your-mysql-password}
+      - MYSQL_HOST=mysql-db
+      - MYSQL_USER=root
+      - MYSQL_DATABASE=lab_db
+    networks:
+      - monitoring_network
+    depends_on:
+      - mysql-db
+
+  mysql-db:
+    image: mysql:8
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-your-mysql-password}
+      - MYSQL_DATABASE=lab_db
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./db:/docker-entrypoint-initdb.d
+      - ./db/my.cnf:/etc/mysql/conf.d/my.cnf
+    ports:
+      - "3306:3306"
+    networks:
+      - monitoring_network
+
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: node-exporter
+    restart: always
+    ports:
+      - "9100:9100"
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--path.rootfs=/rootfs'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    networks:
+      - monitoring_network
+
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    restart: always
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - monitoring_network
+    depends_on:
+      - backend
+      - mysql-db
+
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    restart: always
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
+      - GF_SECURITY_ADMIN_USER=admin
+    ports:
+      - "3001:3000"
+    networks:
+      - monitoring_network
+    depends_on:
+      - prometheus
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin
+    restart: always
+    environment:
+      - PMA_HOST=mysql-db
+      - PMA_PORT=3306
+      - PMA_USER=root
+      - PMA_PASSWORD=${MYSQL_ROOT_PASSWORD:-your-secure-mysql-password}
+      - UPLOAD_LIMIT=64M
+      - MEMORY_LIMIT=256M
+      - MAX_EXECUTION_TIME=300
+    ports:
+      - "8080:80"
+    networks:
+      - monitoring_network
+    depends_on:
+      - mysql-db
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "5173:80"
+    networks:
+      - monitoring_network
+
+  mysqld-exporter:
+    image: prom/mysqld-exporter
+    environment:
+      DATA_SOURCE_NAME: "root:your-mysql-password@(mysql-db:3306)/"
+    ports:
+      - "9104:9104"
+    depends_on:
+      - mysql-db
+
+networks:
+  monitoring_network:
+    driver: bridge
+
+volumes:
+  mysql_data:

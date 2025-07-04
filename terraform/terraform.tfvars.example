@@ -1,0 +1,4 @@
+# Copy this file to terraform.tfvars and fill in your values
+mysql_password   = "your-secure-mysql-password"
+grafana_password = "your-secure-grafana-password"
+location         = "East US" 

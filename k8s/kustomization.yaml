@@ -1,0 +1,28 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: lab-project
+
+resources:
+  - namespace.yaml
+  - mysql-secret.yaml
+  - mysql-persistent-volume.yaml
+  - mysql-init-configmap.yaml
+  - mysql-deployment.yaml
+  - mysql-service.yaml
+  - backend-deployment.yaml
+  - backend-service.yaml
+  - prometheus-configmap.yaml
+  - prometheus-deployment.yaml
+  - prometheus-service.yaml
+  - mysql-exporter-deployment.yaml
+  - mysql-exporter-service.yaml
+  - grafana-deployment.yaml
+  - grafana-service.yaml
+  - ingress.yaml
+  - cronjob.yaml
+  - cronjob-advanced.yaml
+
+commonLabels:
+  app.kubernetes.io/name: lab-project
+  app.kubernetes.io/version: v1.0.0 
