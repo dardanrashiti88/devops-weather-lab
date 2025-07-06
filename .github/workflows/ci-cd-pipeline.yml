@@ -146,16 +146,10 @@ jobs:
             backend/package-lock.json
             frontend/package-lock.json
 
-      - name: 🔍 Run SonarQube analysis
-        uses: sonarqube-quality-gate-action@v1.8.0
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        with:
-          scannerHomebrew: SonarScanner
-          args: >
-            -Dsonar.projectKey=lab-project
-            -Dsonar.sources=.
-            -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }}
+      - name: ℹ️ SonarQube Analysis (Optional)
+        run: |
+          echo "SonarQube analysis skipped - not configured"
+          echo "To enable SonarQube analysis, configure SONAR_TOKEN and SONAR_HOST_URL secrets"
         continue-on-error: true
 
       - name: 🧪 Run Backend tests
