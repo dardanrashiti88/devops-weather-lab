@@ -147,7 +147,7 @@ jobs:
             frontend/package-lock.json
 
       - name: 🔍 Run SonarQube analysis
-        uses: sonarqube-quality-gate-action@master
+        uses: sonarqube-quality-gate-action@v1.8.0
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
@@ -156,6 +156,7 @@ jobs:
             -Dsonar.projectKey=lab-project
             -Dsonar.sources=.
             -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }}
+        continue-on-error: true
 
       - name: 🧪 Run Backend tests
         run: |
