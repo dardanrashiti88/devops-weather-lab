@@ -275,13 +275,21 @@ jobs:
 
       - name: 🔐 Configure kubectl
         run: |
-          if [ -n "${{ secrets.KUBE_CONFIG_DATA }}" ]; then
-            echo "${{ secrets.KUBE_CONFIG_DATA }}" | base64 -d > kubeconfig
-            export KUBECONFIG=kubeconfig
-            echo "Kubernetes configuration loaded successfully"
+          # Check if secret exists and is not the placeholder value
+          if [ -n "${{ secrets.KUBE_CONFIG_DATA }}" ] && [ "${{ secrets.KUBE_CONFIG_DATA }}" != "***" ]; then
+            # Try to decode the base64, redirect stderr to avoid error messages
+            if echo "${{ secrets.KUBE_CONFIG_DATA }}" | base64 -d > kubeconfig 2>/dev/null; then
+              export KUBECONFIG=kubeconfig
+              echo "✅ Kubernetes configuration loaded successfully"
+            else
+              echo "❌ Invalid KUBE_CONFIG_DATA secret - not valid base64"
+              echo "💡 Please update the secret with: base64 -w 0 ~/.kube/config"
+              echo "🔄 Skipping kubectl setup"
+            fi
           else
-            echo "KUBE_CONFIG_DATA secret not configured, skipping kubectl setup"
-            echo "This is normal if you haven't set up Kubernetes deployment yet"
+            echo "ℹ️ KUBE_CONFIG_DATA secret not configured or is placeholder"
+            echo "💡 This is normal if you haven't set up Kubernetes deployment yet"
+            echo "🔄 Skipping kubectl setup"
           fi
         continue-on-error: true
 
@@ -338,13 +346,21 @@ jobs:
 
       - name: 🔐 Configure kubectl
         run: |
-          if [ -n "${{ secrets.KUBE_CONFIG_DATA }}" ]; then
-            echo "${{ secrets.KUBE_CONFIG_DATA }}" | base64 -d > kubeconfig
-            export KUBECONFIG=kubeconfig
-            echo "Kubernetes configuration loaded successfully"
+          # Check if secret exists and is not the placeholder value
+          if [ -n "${{ secrets.KUBE_CONFIG_DATA }}" ] && [ "${{ secrets.KUBE_CONFIG_DATA }}" != "***" ]; then
+            # Try to decode the base64, redirect stderr to avoid error messages
+            if echo "${{ secrets.KUBE_CONFIG_DATA }}" | base64 -d > kubeconfig 2>/dev/null; then
+              export KUBECONFIG=kubeconfig
+              echo "✅ Kubernetes configuration loaded successfully"
+            else
+              echo "❌ Invalid KUBE_CONFIG_DATA secret - not valid base64"
+              echo "💡 Please update the secret with: base64 -w 0 ~/.kube/config"
+              echo "🔄 Skipping kubectl setup"
+            fi
           else
-            echo "KUBE_CONFIG_DATA secret not configured, skipping kubectl setup"
-            echo "This is normal if you haven't set up Kubernetes deployment yet"
+            echo "ℹ️ KUBE_CONFIG_DATA secret not configured or is placeholder"
+            echo "💡 This is normal if you haven't set up Kubernetes deployment yet"
+            echo "🔄 Skipping kubectl setup"
           fi
         continue-on-error: true
 
@@ -427,13 +443,21 @@ jobs:
 
       - name: 🔐 Configure kubectl
         run: |
-          if [ -n "${{ secrets.KUBE_CONFIG_DATA }}" ]; then
-            echo "${{ secrets.KUBE_CONFIG_DATA }}" | base64 -d > kubeconfig
-            export KUBECONFIG=kubeconfig
-            echo "Kubernetes configuration loaded successfully"
+          # Check if secret exists and is not the placeholder value
+          if [ -n "${{ secrets.KUBE_CONFIG_DATA }}" ] && [ "${{ secrets.KUBE_CONFIG_DATA }}" != "***" ]; then
+            # Try to decode the base64, redirect stderr to avoid error messages
+            if echo "${{ secrets.KUBE_CONFIG_DATA }}" | base64 -d > kubeconfig 2>/dev/null; then
+              export KUBECONFIG=kubeconfig
+              echo "✅ Kubernetes configuration loaded successfully"
+            else
+              echo "❌ Invalid KUBE_CONFIG_DATA secret - not valid base64"
+              echo "💡 Please update the secret with: base64 -w 0 ~/.kube/config"
+              echo "🔄 Skipping kubectl setup"
+            fi
           else
-            echo "KUBE_CONFIG_DATA secret not configured, skipping kubectl setup"
-            echo "This is normal if you haven't set up Kubernetes deployment yet"
+            echo "ℹ️ KUBE_CONFIG_DATA secret not configured or is placeholder"
+            echo "💡 This is normal if you haven't set up Kubernetes deployment yet"
+            echo "🔄 Skipping kubectl setup"
           fi
         continue-on-error: true
 
@@ -487,8 +511,23 @@ jobs:
 
       - name: 🔐 Configure kubectl
         run: |
-          echo "${{ secrets.KUBE_CONFIG_DATA }}" | base64 -d > kubeconfig
-          export KUBECONFIG=kubeconfig
+          # Check if secret exists and is not the placeholder value
+          if [ -n "${{ secrets.KUBE_CONFIG_DATA }}" ] && [ "${{ secrets.KUBE_CONFIG_DATA }}" != "***" ]; then
+            # Try to decode the base64, redirect stderr to avoid error messages
+            if echo "${{ secrets.KUBE_CONFIG_DATA }}" | base64 -d > kubeconfig 2>/dev/null; then
+              export KUBECONFIG=kubeconfig
+              echo "✅ Kubernetes configuration loaded successfully"
+            else
+              echo "❌ Invalid KUBE_CONFIG_DATA secret - not valid base64"
+              echo "💡 Please update the secret with: base64 -w 0 ~/.kube/config"
+              echo "🔄 Skipping kubectl setup"
+            fi
+          else
+            echo "ℹ️ KUBE_CONFIG_DATA secret not configured or is placeholder"
+            echo "💡 This is normal if you haven't set up Kubernetes deployment yet"
+            echo "🔄 Skipping kubectl setup"
+          fi
+        continue-on-error: true
 
       - name: 🗑️ Cleanup old images
         run: |
