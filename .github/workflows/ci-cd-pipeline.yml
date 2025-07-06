@@ -453,10 +453,17 @@ jobs:
 
       - name: 🔔 Configure alerting
         run: |
-          # Send test alert
-          curl -X POST ${{ secrets.ALERTMANAGER_URL }}/api/v1/alerts \
-            -H "Content-Type: application/json" \
-            -d '[{"labels":{"alertname":"DeploymentSuccess","severity":"info"},"annotations":{"description":"Deployment completed successfully"}}]'
+          if [ -n "${{ secrets.ALERTMANAGER_URL }}" ]; then
+            echo "Sending test alert to AlertManager..."
+            # Send test alert
+            curl -X POST ${{ secrets.ALERTMANAGER_URL }}/api/v1/alerts \
+              -H "Content-Type: application/json" \
+              -d '[{"labels":{"alertname":"DeploymentSuccess","severity":"info"},"annotations":{"description":"Deployment completed successfully"}}]' || echo "Alert sending completed with warnings"
+          else
+            echo "ALERTMANAGER_URL not configured, skipping alert configuration"
+            echo "This is normal if you haven't set up AlertManager yet"
+          fi
+        continue-on-error: true
 
   # ========================================
   # CLEANUP & MAINTENANCE
