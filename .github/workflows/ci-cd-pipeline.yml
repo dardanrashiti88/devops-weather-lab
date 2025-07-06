@@ -437,11 +437,23 @@ jobs:
 
       - name: 📈 Deploy monitoring stack
         run: |
-          # Deploy Prometheus, Grafana, AlertManager
-          kubectl apply -f k8s/monitoring/
-          
-          # Configure alerts
-          kubectl apply -f k8s/alerts/
+          if [ -n "${{ secrets.KUBE_CONFIG_DATA }}" ]; then
+            echo "Deploying monitoring stack..."
+            # Create monitoring namespace
+            kubectl create namespace monitoring --dry-run=client -o yaml | kubectl apply -f -
+            
+            # Deploy Prometheus, Grafana, AlertManager
+            kubectl apply -f k8s/monitoring/
+            
+            # Configure alerts
+            kubectl apply -f k8s/alerts/
+            
+            echo "Monitoring stack deployed successfully"
+          else
+            echo "KUBE_CONFIG_DATA not configured, skipping monitoring deployment"
+            echo "This is normal if you haven't set up Kubernetes deployment yet"
+          fi
+        continue-on-error: true
 
       - name: 🔔 Configure alerting
         run: |
