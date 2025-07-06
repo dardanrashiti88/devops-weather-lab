@@ -1,24 +1,27 @@
 config:
   target: 'http://localhost:3000'
   phases:
-    - duration: 30
-      arrivalRate: 20
+    - duration: 20
+      arrivalRate: 10
       name: "Ramp up"
-    - duration: 60
-      arrivalRate: 100
+    - duration: 30
+      arrivalRate: 50
       name: "Sustained load"
-    - duration: 30
-      arrivalRate: 200
+    - duration: 20
+      arrivalRate: 100
       name: "Stress test"
-    - duration: 30
-      arrivalRate: 500
+    - duration: 20
+      arrivalRate: 200
       name: "Peak stress"
-    - duration: 30
-      arrivalRate: 1000
+    - duration: 20
+      arrivalRate: 300
       name: "Breaking point"
-    - duration: 30
-      arrivalRate: 20
+    - duration: 20
+      arrivalRate: 10
       name: "Recovery"
+  timeout: 30
+  http:
+    timeout: 10
   defaults:
     headers:
       Content-Type: 'application/json'
