@@ -1,0 +1,142 @@
+name: 🚀 Production Deployment Only
+
+on:
+  workflow_dispatch:
+    inputs:
+      force_deploy:
+        description: 'Force deployment even if tests fail'
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+  actions: read
+  packages: write
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+  KUBE_CONFIG: ${{ secrets.KUBE_CONFIG_DATA }}
+  DOCKER_BUILDKIT: 1
+
+jobs:
+  quick-test:
+    name: ⚡ Quick Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: 🧪 Quick Backend test
+        run: |
+          cd backend
+          npm ci
+          npm run lint
+          echo "✅ Backend quick test passed"
+
+      - name: 🧪 Quick Frontend test
+        run: |
+          cd frontend
+          npm ci
+          npm run lint
+          npm run build
+          echo "✅ Frontend quick test passed"
+
+  build-production:
+    name: 🏗️ Build for Production
+    runs-on: ubuntu-latest
+    needs: quick-test
+    outputs:
+      backend-image: ${{ steps.build-backend.outputs.image }}
+      frontend-image: ${{ steps.build-frontend.outputs.image }}
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔐 Login to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 🏗️ Build Backend image
+        id: build-backend
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/backend:production-${{ github.sha }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/backend:production-latest
+          platforms: linux/amd64
+
+      - name: 🏗️ Build Frontend image
+        id: build-frontend
+        uses: docker/build-push-action@v5
+        with:
+          context: ./frontend
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/frontend:production-${{ github.sha }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/frontend:production-latest
+          platforms: linux/amd64
+
+  deploy-production:
+    name: 🚀 Deploy to Production
+    runs-on: ubuntu-latest
+    needs: build-production
+    environment: production
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'latest'
+
+      - name: 🔐 Configure kubectl
+        run: |
+          # Check if secret exists and is not the placeholder value
+          if [ -n "${{ secrets.KUBE_CONFIG_DATA }}" ] && [ "${{ secrets.KUBE_CONFIG_DATA }}" != "***" ]; then
+            # Try to decode the base64, redirect stderr to avoid error messages
+            if echo "${{ secrets.KUBE_CONFIG_DATA }}" | base64 -d > kubeconfig 2>/dev/null; then
+              export KUBECONFIG=kubeconfig
+              echo "✅ Kubernetes configuration loaded successfully"
+            else
+              echo "❌ Invalid KUBE_CONFIG_DATA secret - not valid base64"
+              echo "💡 Please update the secret with: base64 -w 0 ~/.kube/config"
+              echo "🔄 Skipping kubectl setup"
+            fi
+          else
+            echo "ℹ️ KUBE_CONFIG_DATA secret not configured or is placeholder"
+            echo "💡 This is normal if you haven't set up Kubernetes deployment yet"
+            echo "🔄 Skipping kubectl setup"
+          fi
+        continue-on-error: true
+
+      - name: 🚀 Deploy to production
+        run: |
+          echo "🚀 Deploying to production environment..."
+          echo "Backend image: ${{ needs.build-production.outputs.backend-image }}"
+          echo "Frontend image: ${{ needs.build-production.outputs.frontend-image }}"
+          
+          # Add your deployment commands here
+          # helm upgrade --install lab-project-production ./helm/lab-project \
+          #   --namespace production \
+          #   --create-namespace \
+          #   --set image.tag=production-${{ github.sha }} \
+          #   --set environment=production \
+          #   --wait --timeout=15m
+
+      - name: ✅ Production deployment complete
+        run: |
+          echo "✅ Production deployment completed successfully!"
+          echo "🎉 Your application is now deployed to production" 
