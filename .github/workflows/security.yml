@@ -36,7 +36,7 @@ jobs:
           sarif_file: 'trivy-results.sarif'
 
       - name: ℹ️ No Trivy SARIF files to upload
-        if: !hashFiles('trivy-results.sarif')
+        if: "!hashFiles('trivy-results.sarif')"
         run: |
           echo "No Trivy SARIF files found to upload"
           echo "This is normal if no vulnerabilities were detected or scan failed"
@@ -182,7 +182,7 @@ jobs:
           sarif_file: 'backend-container-scan.sarif,frontend-container-scan.sarif'
 
       - name: ℹ️ No container SARIF files to upload
-        if: !hashFiles('backend-container-scan.sarif') && !hashFiles('frontend-container-scan.sarif')
+        if: "!hashFiles('backend-container-scan.sarif') && !hashFiles('frontend-container-scan.sarif')"
         run: |
           echo "No container SARIF files found to upload"
           echo "This is normal if no vulnerabilities were detected or images don't exist yet"
