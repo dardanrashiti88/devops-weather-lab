@@ -31,8 +31,15 @@ jobs:
 
       - name: 📊 Upload Trivy scan results
         uses: github/codeql-action/upload-sarif@v3
+        if: hashFiles('trivy-results.sarif')
         with:
           sarif_file: 'trivy-results.sarif'
+
+      - name: ℹ️ No Trivy SARIF files to upload
+        if: !hashFiles('trivy-results.sarif')
+        run: |
+          echo "No Trivy SARIF files found to upload"
+          echo "This is normal if no vulnerabilities were detected or scan failed"
 
       - name: 🔍 Run npm audit
         run: |
@@ -169,10 +176,16 @@ jobs:
           output: 'frontend-container-scan.sarif'
 
       - name: 📊 Upload container scan results
-        if: steps.check-images.outputs.backend-exists == 'true' || steps.check-images.outputs.frontend-exists == 'true'
+        if: (steps.check-images.outputs.backend-exists == 'true' && hashFiles('backend-container-scan.sarif')) || (steps.check-images.outputs.frontend-exists == 'true' && hashFiles('frontend-container-scan.sarif'))
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: 'backend-container-scan.sarif,frontend-container-scan.sarif'
+
+      - name: ℹ️ No container SARIF files to upload
+        if: !hashFiles('backend-container-scan.sarif') && !hashFiles('frontend-container-scan.sarif')
+        run: |
+          echo "No container SARIF files found to upload"
+          echo "This is normal if no vulnerabilities were detected or images don't exist yet"
 
       - name: ℹ️ No container images to scan
         if: steps.check-images.outputs.backend-exists == 'false' && steps.check-images.outputs.frontend-exists == 'false'
