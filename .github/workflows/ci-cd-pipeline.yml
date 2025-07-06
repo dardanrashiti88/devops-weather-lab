@@ -531,13 +531,27 @@ jobs:
 
       - name: 🗑️ Cleanup old images
         run: |
-          # Remove images older than 30 days
-          docker system prune -a --filter "until=720h" -f
+          # Check if Docker is available and clean up old images
+          if command -v docker &> /dev/null; then
+            echo "🧹 Cleaning up Docker images older than 30 days..."
+            docker system prune -a --filter "until=720h" -f || echo "Docker cleanup completed with warnings"
+            echo "✅ Docker cleanup completed"
+          else
+            echo "ℹ️ Docker not available, skipping image cleanup"
+            echo "💡 This is normal in CI environments without Docker"
+          fi
 
       - name: 📊 Cleanup old backups
         run: |
-          # Keep only last 7 days of backups
-          find /backups -name "*.sql" -mtime +7 -delete
+          # Check if backups directory exists before cleaning
+          if [ -d "/backups" ]; then
+            echo "🧹 Cleaning up backups older than 7 days..."
+            find /backups -name "*.sql" -mtime +7 -delete
+            echo "✅ Backup cleanup completed"
+          else
+            echo "ℹ️ No /backups directory found, skipping backup cleanup"
+            echo "💡 This is normal if you haven't set up backup storage yet"
+          fi
 
       - name: 📈 Update metrics
         run: |
