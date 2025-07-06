@@ -22,6 +22,13 @@ on:
         default: false
         type: boolean
 
+permissions:
+  security-events: write
+  contents: read
+  actions: read
+  packages: write
+  id-token: write
+
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
@@ -60,10 +67,12 @@ jobs:
 
       - name: 🔍 Run npm audit
         run: |
+          echo "=== Backend Security Audit ==="
           cd backend
-          npm audit --audit-level=high || true
+          npm audit --audit-level=high || echo "Backend audit completed with warnings"
           cd ../frontend
-          npm audit --audit-level=high || true
+          echo "=== Frontend Security Audit ==="
+          npm audit --audit-level=high || echo "Frontend audit completed with warnings"
 
       - name: 🛡️ Run OWASP ZAP security scan
         uses: zaproxy/action-full-scan@v0.8.0
