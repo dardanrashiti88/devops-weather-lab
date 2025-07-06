@@ -6,7 +6,7 @@ A complete lab environment with Node.js backend, MySQL database, Prometheus moni
 
 - **Backend**: Node.js Express application
 - **Database**: MySQL 8.0 with initialization scripts
-- **Monitoring**: Prometheus + Grafana + MySQL Exporter
+- **Monitoring**: Prometheus + Grafana
 - **Deployment**: Docker Compose and Kubernetes support
 - **Automation**: Daily maintenance CronJobs
 - **Frontend**: React app (see below for deployment)
@@ -231,17 +231,15 @@ terraform destroy
 
 ### Prometheus
 - **URL**: http://localhost:9090 (Docker) / http://prometheus.local (K8s)
-- **Targets**: Backend, MySQL Exporter, Prometheus itself
-- **Metrics**: Application metrics, database performance
+- **Targets**: Backend, Node Exporter, Prometheus itself
+- **Metrics**: Application metrics, system performance
 
 ### Grafana
 - **URL**: http://localhost:3001 (Docker) / http://grafana.local (K8s)
 - **Credentials**: admin/admin
 - **Dashboards**: Pre-configured for monitoring
 
-### MySQL Exporter
-- **Port**: 9104
-- **Metrics**: Database performance, connection stats
+
 
 ## 🔍 Troubleshooting
 

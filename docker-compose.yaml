@@ -89,7 +89,7 @@ services:
       - MEMORY_LIMIT=256M
       - MAX_EXECUTION_TIME=300
     ports:
-      - "8080:80"
+      - "9091:80"
     networks:
       - monitoring_network
     depends_on:
@@ -101,15 +101,6 @@ services:
       - "5173:80"
     networks:
       - monitoring_network
-
-  mysqld-exporter:
-    image: prom/mysqld-exporter
-    environment:
-      DATA_SOURCE_NAME: "root:your-mysql-password@(mysql-db:3306)/"
-    ports:
-      - "9104:9104"
-    depends_on:
-      - mysql-db
 
 networks:
   monitoring_network:
