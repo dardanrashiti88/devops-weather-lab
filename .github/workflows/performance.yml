@@ -22,7 +22,7 @@ jobs:
 
       - name: 🏗️ Build and start application
         run: |
-          docker-compose up -d
+          docker compose up -d
           sleep 30  # Wait for services to be ready
 
       - name: 🧪 Run Artillery load tests
@@ -45,7 +45,7 @@ jobs:
 
       - name: 🧹 Cleanup
         if: always()
-        run: docker-compose down
+        run: docker compose down
 
   performance-monitoring:
     name: 📈 Performance Monitoring
@@ -85,7 +85,7 @@ jobs:
 
       - name: 🏗️ Start application with monitoring
         run: |
-          docker-compose up -d
+          docker compose up -d
           sleep 30
 
       - name: 🧪 Run memory leak tests
@@ -120,7 +120,7 @@ jobs:
 
       - name: 🏗️ Start database
         run: |
-          docker-compose up -d mysql-db
+          docker compose up -d mysql-db
           sleep 30
 
       - name: 🧪 Run database performance tests

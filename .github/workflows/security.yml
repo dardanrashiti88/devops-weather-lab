@@ -45,8 +45,8 @@ jobs:
 
       - name: 🏗️ Start application for ZAP scan
         run: |
-          # Start the application using docker-compose
-          docker-compose up -d frontend backend
+          # Start the application using docker compose
+          docker compose up -d frontend backend
           echo "Waiting for application to be ready..."
           sleep 30
           
@@ -77,7 +77,7 @@ jobs:
       - name: 🧹 Cleanup application
         if: always()
         run: |
-          docker-compose down || true
+          docker compose down || true
 
       - name: 🔍 Run Bandit (Python security)
         run: |
