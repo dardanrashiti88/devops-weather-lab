@@ -1,0 +1,116 @@
+name: 🔒 Security Scanning
+
+on:
+  schedule:
+    - cron: '0 2 * * *'  # Daily at 2 AM
+  workflow_dispatch:
+  push:
+    branches: [ main, develop ]
+
+jobs:
+  security-audit:
+    name: 🔍 Security Audit
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔍 Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          severity: 'CRITICAL,HIGH,MEDIUM'
+
+      - name: 📊 Upload Trivy scan results
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+      - name: 🔍 Run npm audit
+        run: |
+          cd backend
+          npm audit --audit-level=moderate || true
+          cd ../frontend
+          npm audit --audit-level=moderate || true
+
+      - name: 🛡️ Run OWASP ZAP security scan
+        uses: zaproxy/action-full-scan@v0.8.0
+        with:
+          target: 'http://localhost:3000'
+          rules_file_name: '.zap/rules.tsv'
+          cmd_options: '-a'
+
+      - name: 🔍 Run Bandit (Python security)
+        run: |
+          pip install bandit
+          bandit -r . -f json -o bandit-report.json || true
+
+      - name: 📊 Upload security reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-reports
+          path: |
+            trivy-results.sarif
+            bandit-report.json
+          retention-days: 30
+
+  dependency-check:
+    name: 📦 Dependency Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: 🔍 Run npm audit
+        run: |
+          cd backend
+          npm audit --audit-level=moderate
+          cd ../frontend
+          npm audit --audit-level=moderate
+
+      - name: 🔍 Run yarn audit (if applicable)
+        run: |
+          if [ -f "yarn.lock" ]; then
+            yarn audit --level moderate
+          fi
+
+  container-scan:
+    name: 🐳 Container Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔐 Login to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 🔍 Scan Backend container
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'ghcr.io/${{ github.repository }}/backend:latest'
+          format: 'sarif'
+          output: 'backend-container-scan.sarif'
+
+      - name: 🔍 Scan Frontend container
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'ghcr.io/${{ github.repository }}/frontend:latest'
+          format: 'sarif'
+          output: 'frontend-container-scan.sarif'
+
+      - name: 📊 Upload container scan results
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: 'backend-container-scan.sarif,frontend-container-scan.sarif' 

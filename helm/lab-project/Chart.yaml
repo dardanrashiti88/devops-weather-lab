@@ -1,0 +1,17 @@
+apiVersion: v2
+name: lab-project
+description: A Helm chart for Lab Project Kubernetes deployment
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
+keywords:
+  - lab-project
+  - nodejs
+  - mysql
+  - monitoring
+home: https://github.com/your-username/lab-project
+sources:
+  - https://github.com/your-username/lab-project
+maintainers:
+  - name: Your Name
+    email: your.email@example.com 

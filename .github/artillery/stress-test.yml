@@ -1,0 +1,65 @@
+config:
+  target: 'http://localhost:3000'
+  phases:
+    - duration: 30
+      arrivalRate: 20
+      name: "Ramp up"
+    - duration: 60
+      arrivalRate: 100
+      name: "Sustained load"
+    - duration: 30
+      arrivalRate: 200
+      name: "Stress test"
+    - duration: 30
+      arrivalRate: 500
+      name: "Peak stress"
+    - duration: 30
+      arrivalRate: 1000
+      name: "Breaking point"
+    - duration: 30
+      arrivalRate: 20
+      name: "Recovery"
+  defaults:
+    headers:
+      Content-Type: 'application/json'
+      User-Agent: 'Artillery Stress Test'
+
+scenarios:
+  - name: "Intensive API Calls"
+    weight: 40
+    flow:
+      - get:
+          url: "/health"
+      - get:
+          url: "/api/data"
+      - post:
+          url: "/api/users"
+          json:
+            username: "{{ $randomString() }}"
+            email: "{{ $randomString() }}@example.com"
+            password: "password123"
+
+  - name: "Database Intensive"
+    weight: 30
+    flow:
+      - get:
+          url: "/api/users"
+      - get:
+          url: "/api/users/{{ $randomInt(1, 1000) }}"
+      - post:
+          url: "/api/data"
+          json:
+            data: "{{ $randomString(1000) }}"
+
+  - name: "Authentication Stress"
+    weight: 30
+    flow:
+      - post:
+          url: "/api/auth/login"
+          json:
+            username: "{{ $randomString() }}"
+            password: "{{ $randomString() }}"
+      - get:
+          url: "/api/users/profile"
+          headers:
+            Authorization: "Bearer {{ $randomString() }}" 

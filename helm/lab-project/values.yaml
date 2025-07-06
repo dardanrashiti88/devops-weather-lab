@@ -1,0 +1,335 @@
+# Default values for lab-project
+# This is a YAML-formatted file.
+
+# Global configuration
+global:
+  environment: production
+  imageRegistry: ghcr.io
+  imagePullSecrets: []
+  storageClass: ""
+
+# Image configuration
+image:
+  repository: lab-project
+  tag: latest
+  pullPolicy: IfNotPresent
+
+# Backend configuration
+backend:
+  enabled: true
+  replicaCount: 3
+  image:
+    repository: lab-project/backend
+    tag: latest
+    pullPolicy: IfNotPresent
+  
+  service:
+    type: ClusterIP
+    port: 3000
+    targetPort: 3000
+  
+  ingress:
+    enabled: true
+    className: nginx
+    annotations:
+      kubernetes.io/ingress.class: nginx
+      cert-manager.io/cluster-issuer: letsencrypt-prod
+    hosts:
+      - host: lab-project.com
+        paths:
+          - path: /api
+            pathType: Prefix
+    tls:
+      - secretName: lab-project-tls
+        hosts:
+          - lab-project.com
+  
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 2Gi
+    requests:
+      cpu: 500m
+      memory: 1Gi
+  
+  autoscaling:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 80
+    targetMemoryUtilizationPercentage: 80
+  
+  env:
+    - name: NODE_ENV
+      value: production
+    - name: MYSQL_HOST
+      value: mysql-service
+    - name: MYSQL_PORT
+      value: "3306"
+    - name: MYSQL_DATABASE
+      value: lab_db
+    - name: MYSQL_USER
+      valueFrom:
+        secretKeyRef:
+          name: mysql-secret
+          key: username
+    - name: MYSQL_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: mysql-secret
+          key: password
+  
+  livenessProbe:
+    httpGet:
+      path: /health
+      port: 3000
+    initialDelaySeconds: 30
+    periodSeconds: 10
+  
+  readinessProbe:
+    httpGet:
+      path: /health
+      port: 3000
+    initialDelaySeconds: 5
+    periodSeconds: 5
+
+# Frontend configuration
+frontend:
+  enabled: true
+  replicaCount: 3
+  image:
+    repository: lab-project/frontend
+    tag: latest
+    pullPolicy: IfNotPresent
+  
+  service:
+    type: ClusterIP
+    port: 80
+    targetPort: 80
+  
+  ingress:
+    enabled: true
+    className: nginx
+    annotations:
+      kubernetes.io/ingress.class: nginx
+      cert-manager.io/cluster-issuer: letsencrypt-prod
+    hosts:
+      - host: lab-project.com
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - secretName: lab-project-tls
+        hosts:
+          - lab-project.com
+  
+  resources:
+    limits:
+      cpu: 500m
+      memory: 1Gi
+    requests:
+      cpu: 250m
+      memory: 512Mi
+  
+  autoscaling:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 80
+    targetMemoryUtilizationPercentage: 80
+  
+  livenessProbe:
+    httpGet:
+      path: /
+      port: 80
+    initialDelaySeconds: 30
+    periodSeconds: 10
+  
+  readinessProbe:
+    httpGet:
+      path: /
+      port: 80
+    initialDelaySeconds: 5
+    periodSeconds: 5
+
+# MySQL configuration
+mysql:
+  enabled: true
+  image:
+    repository: mysql
+    tag: "8.0"
+    pullPolicy: IfNotPresent
+  
+  auth:
+    rootPassword: ""
+    database: lab_db
+    username: ""
+    password: ""
+    existingSecret: mysql-secret
+  
+  primary:
+    persistence:
+      enabled: true
+      storageClass: ""
+      size: 10Gi
+      accessModes:
+        - ReadWriteOnce
+  
+  service:
+    type: ClusterIP
+    port: 3306
+  
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 2Gi
+    requests:
+      cpu: 500m
+      memory: 1Gi
+
+# Monitoring configuration
+monitoring:
+  enabled: true
+  
+  prometheus:
+    enabled: true
+    service:
+      type: ClusterIP
+      port: 9090
+    
+    ingress:
+      enabled: true
+      className: nginx
+      hosts:
+        - host: prometheus.lab-project.com
+          paths:
+            - path: /
+              pathType: Prefix
+  
+  grafana:
+    enabled: true
+    adminPassword: ""
+    service:
+      type: ClusterIP
+      port: 3000
+    
+    ingress:
+      enabled: true
+      className: nginx
+      hosts:
+        - host: grafana.lab-project.com
+          paths:
+            - path: /
+              pathType: Prefix
+    
+    persistence:
+      enabled: true
+      storageClass: ""
+      size: 5Gi
+
+# Node Exporter configuration
+nodeExporter:
+  enabled: true
+  service:
+    type: ClusterIP
+    port: 9100
+
+# phpMyAdmin configuration
+phpMyAdmin:
+  enabled: false
+  image:
+    repository: phpmyadmin/phpmyadmin
+    tag: latest
+  
+  service:
+    type: ClusterIP
+    port: 80
+  
+  ingress:
+    enabled: false
+    className: nginx
+    hosts:
+      - host: phpmyadmin.lab-project.com
+        paths:
+          - path: /
+            pathType: Prefix
+
+# Backup configuration
+backup:
+  enabled: true
+  schedule: "0 2 * * *"  # Daily at 2 AM
+  retention: 7  # Keep backups for 7 days
+  storage:
+    type: s3
+    bucket: lab-project-backups
+    region: us-east-1
+  
+  cronjob:
+    enabled: true
+    image:
+      repository: mysql
+      tag: "8.0"
+    resources:
+      limits:
+        cpu: 500m
+        memory: 1Gi
+      requests:
+        cpu: 250m
+        memory: 512Mi
+
+# Network policies
+networkPolicy:
+  enabled: true
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: ingress-nginx
+      ports:
+        - protocol: TCP
+          port: 3000
+        - protocol: TCP
+          port: 80
+
+# Pod disruption budget
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 2
+
+# Horizontal Pod Autoscaler
+hpa:
+  enabled: true
+  minReplicas: 3
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 80
+  targetMemoryUtilizationPercentage: 80
+
+# Pod Security Standards
+podSecurity:
+  enabled: true
+  level: restricted
+  version: latest
+
+# Service Account
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+# RBAC
+rbac:
+  create: true
+
+# Security Context
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  fsGroup: 1000
+  capabilities:
+    drop:
+      - ALL
+  readOnlyRootFilesystem: true
+  allowPrivilegeEscalation: false
+  privileged: false
+  seccompProfile:
+    type: RuntimeDefault 

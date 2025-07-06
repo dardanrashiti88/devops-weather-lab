@@ -1,0 +1,141 @@
+name: 📊 Performance Testing
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main, develop ]
+  schedule:
+    - cron: '0 6 * * *'  # Daily at 6 AM
+
+jobs:
+  load-test:
+    name: 🚀 Load Testing
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: 🏗️ Build and start application
+        run: |
+          docker-compose up -d
+          sleep 30  # Wait for services to be ready
+
+      - name: 🧪 Run Artillery load tests
+        run: |
+          npm install -g artillery
+          artillery run .github/artillery/load-test.yml
+          artillery run .github/artillery/stress-test.yml
+
+      - name: 📊 Generate performance report
+        run: |
+          artillery report artillery-report.json
+          mv artillery-report.html performance-report.html
+
+      - name: 📤 Upload performance report
+        uses: actions/upload-artifact@v4
+        with:
+          name: performance-report
+          path: performance-report.html
+          retention-days: 30
+
+      - name: 🧹 Cleanup
+        if: always()
+        run: docker-compose down
+
+  performance-monitoring:
+    name: 📈 Performance Monitoring
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: 🧪 Run Lighthouse CI
+        uses: treosh/lighthouse-ci-action@v10
+        with:
+          configPath: './.lighthouserc.json'
+          uploadArtifacts: true
+          temporaryPublicStorage: true
+
+      - name: 📊 Run WebPageTest
+        run: |
+          npm install -g webpagetest
+          webpagetest test https://lab-project.com --key ${{ secrets.WEBPAGETEST_API_KEY }}
+
+  memory-leak-test:
+    name: 🧠 Memory Leak Detection
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: 🏗️ Start application with monitoring
+        run: |
+          docker-compose up -d
+          sleep 30
+
+      - name: 🧪 Run memory leak tests
+        run: |
+          # Run memory leak detection
+          npm install -g clinic
+          clinic doctor -- node backend/server.js &
+          sleep 60
+          kill %1
+
+      - name: 📊 Analyze memory usage
+        run: |
+          clinic flame -- node backend/server.js &
+          sleep 60
+          kill %1
+
+      - name: 📤 Upload memory reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: memory-reports
+          path: |
+            *.clinic-doctor.html
+            *.clinic-flame.html
+          retention-days: 30
+
+  database-performance:
+    name: 🗄️ Database Performance
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🏗️ Start database
+        run: |
+          docker-compose up -d mysql-db
+          sleep 30
+
+      - name: 🧪 Run database performance tests
+        run: |
+          # Run MySQL performance tests
+          mysql -h localhost -P 3306 -u root -p$MYSQL_ROOT_PASSWORD lab_db < .github/scripts/db-performance-test.sql
+
+      - name: 📊 Generate database report
+        run: |
+          # Generate performance report
+          mysqltuner --host localhost --user root --pass $MYSQL_ROOT_PASSWORD > db-performance-report.txt
+
+      - name: 📤 Upload database report
+        uses: actions/upload-artifact@v4
+        with:
+          name: database-performance-report
+          path: db-performance-report.txt
+          retention-days: 30 
