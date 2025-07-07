@@ -178,4 +178,12 @@ jobs:
         if: steps.check-images.outputs.backend-exists == 'false' && steps.check-images.outputs.frontend-exists == 'false'
         run: |
           echo "No container images found to scan. Images will be scanned after they are built in the main CI/CD pipeline."
-          echo "This is normal for the first run or when images haven't been built yet." 
+          echo "This is normal for the first run or when images haven't been built yet."
+
+      - name: 📊 Upload container scan SARIF reports
+        if: steps.check-images.outputs.backend-exists == 'true' || steps.check-images.outputs.frontend-exists == 'true'
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: |
+            backend-container-scan.sarif
+            frontend-container-scan.sarif 
