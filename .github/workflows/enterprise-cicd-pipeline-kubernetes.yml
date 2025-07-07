@@ -7,10 +7,12 @@ on:
 
 jobs:
   deploy-to-staging:
-    if: ${{ secrets.KUBE_CLUSTER_CONFIGURED == 'true' }}
     runs-on: ubuntu-latest
+    env:
+      KUBE_CLUSTER_CONFIGURED: ${{ secrets.KUBE_CLUSTER_CONFIGURED }}
     steps:
       - name: Deploy to staging
+        if: env.KUBE_CLUSTER_CONFIGURED == 'true'
         run: |
           helm upgrade --install lab-project-staging ./helm/lab-project
           # ... existing deploy command ... 
