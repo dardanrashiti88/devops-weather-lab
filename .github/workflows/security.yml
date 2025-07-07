@@ -1,11 +1,12 @@
 name: 🔒 Security Scanning
 
 on:
-  schedule:
-    - cron: '0 2 * * *'  # Daily at 2 AM
+  # Temporarily disabled auto-triggers to reduce workflow spam
+  # schedule:
+  #   - cron: '0 2 * * *'  # Daily at 2 AM
+  # push:
+  #   branches: [ main, develop ]
   workflow_dispatch:
-  push:
-    branches: [ main, develop ]
 
 permissions:
   security-events: write
@@ -176,7 +177,7 @@ jobs:
           output: 'frontend-container-scan.sarif'
 
       - name: 📊 Upload container scan results
-        if: (steps.check-images.outputs.backend-exists == 'true' && hashFiles('backend-container-scan.sarif')) || (steps.check-images.outputs.frontend-exists == 'true' && hashFiles('frontend-container-scan.sarif'))
+        if: hashFiles('backend-container-scan.sarif') || hashFiles('frontend-container-scan.sarif')
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: 'backend-container-scan.sarif,frontend-container-scan.sarif'
