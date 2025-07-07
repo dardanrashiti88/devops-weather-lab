@@ -7,10 +7,8 @@ on:
 
 jobs:
   deploy-to-staging:
-    if: env.KUBE_CLUSTER_CONFIGURED == 'true'
+    if: ${{ secrets.KUBE_CLUSTER_CONFIGURED == 'true' }}
     runs-on: ubuntu-latest
-    env:
-      KUBE_CLUSTER_CONFIGURED: ${{ secrets.KUBE_CLUSTER_CONFIGURED }}
     steps:
       - name: Deploy to staging
         run: |
