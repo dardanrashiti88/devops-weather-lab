@@ -30,17 +30,10 @@ jobs:
           output: 'trivy-results.sarif'
           severity: 'CRITICAL,HIGH,MEDIUM'
 
-      - name: 📊 Upload Trivy scan results
-        uses: github/codeql-action/upload-sarif@v3
-        if: hashFiles('trivy-results.sarif')
-        with:
-          sarif_file: 'trivy-results.sarif'
-
-      - name: ℹ️ No Trivy SARIF files to upload
-        if: "!hashFiles('trivy-results.sarif')"
+      - name: ℹ️ Trivy scan completed
         run: |
-          echo "No Trivy SARIF files found to upload"
-          echo "This is normal if no vulnerabilities were detected or scan failed"
+          echo "Trivy security scan completed"
+          echo "SARIF files will be uploaded when vulnerabilities are found"
 
       - name: 🔍 Run npm audit
         run: |

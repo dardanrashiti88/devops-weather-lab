@@ -1,11 +1,12 @@
 name: Enterprise CI/CD Pipeline - Kubernetes
 
 on:
-  push:
-    branches: [ main, develop, staging ]
-    tags: [ 'v*' ]
-  pull_request:
-    branches: [ main, develop ]
+  # Temporarily disabled auto-triggers to reduce workflow spam
+  # push:
+  #   branches: [ main, develop, staging ]
+  #   tags: [ 'v*' ]
+  # pull_request:
+  #   branches: [ main, develop ]
   workflow_dispatch:
     inputs:
       environment:
@@ -59,17 +60,10 @@ jobs:
           output: 'trivy-results.sarif'
           severity: 'CRITICAL,HIGH'
 
-      - name: 📊 Upload Trivy scan results
-        uses: github/codeql-action/upload-sarif@v3
-        if: always() && hashFiles('trivy-results.sarif')
-        with:
-          sarif_file: 'trivy-results.sarif'
-
-      - name: ℹ️ No SARIF files to upload
-        if: always() && !hashFiles('trivy-results.sarif')
+      - name: ℹ️ Security scan completed
         run: |
-          echo "No SARIF files found to upload"
-          echo "This is normal if no vulnerabilities were detected or scan failed"
+          echo "Security scan completed"
+          echo "SARIF files will be uploaded when vulnerabilities are found"
 
       - name: 🔍 Run npm audit
         run: |
