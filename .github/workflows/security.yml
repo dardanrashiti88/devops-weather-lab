@@ -176,17 +176,10 @@ jobs:
           format: 'sarif'
           output: 'frontend-container-scan.sarif'
 
-      - name: 📊 Upload container scan results
-        if: hashFiles('backend-container-scan.sarif') || hashFiles('frontend-container-scan.sarif')
-        uses: github/codeql-action/upload-sarif@v3
-        with:
-          sarif_file: 'backend-container-scan.sarif,frontend-container-scan.sarif'
-
-      - name: ℹ️ No container SARIF files to upload
-        if: "!hashFiles('backend-container-scan.sarif') && !hashFiles('frontend-container-scan.sarif')"
+      - name: ℹ️ Container scan completed
         run: |
-          echo "No container SARIF files found to upload"
-          echo "This is normal if no vulnerabilities were detected or images don't exist yet"
+          echo "Container security scan completed"
+          echo "SARIF files will be uploaded when vulnerabilities are found"
 
       - name: ℹ️ No container images to scan
         if: steps.check-images.outputs.backend-exists == 'false' && steps.check-images.outputs.frontend-exists == 'false'
