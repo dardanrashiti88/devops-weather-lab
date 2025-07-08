@@ -6,12 +6,9 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: 'https://github.com/your-username/lab-2.git'
+    repoURL: 'https://github.com/dardanrashiti88/lab-2.git'
     targetRevision: main
-    path: helm/lab-project
-    helm:
-      valueFiles:
-        - values.yaml
+    path: k8s
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: production
