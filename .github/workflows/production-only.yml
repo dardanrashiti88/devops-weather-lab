@@ -1,6 +1,10 @@
 name: 🚀 Production Deployment Only
 
 on:
+  push:
+    branches:
+      - main
+      - 'release/*'
   workflow_dispatch:
     inputs:
       force_deploy:

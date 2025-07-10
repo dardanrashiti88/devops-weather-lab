@@ -1,6 +1,10 @@
 name: 🚀 Staging Deployment Only
 
 on:
+  push:
+    branches:
+      - develop
+      - staging
   workflow_dispatch:
     inputs:
       force_deploy:

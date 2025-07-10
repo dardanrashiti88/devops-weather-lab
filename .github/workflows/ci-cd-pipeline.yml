@@ -1,12 +1,24 @@
 name: Enterprise CI/CD Pipeline - Kubernetes
 
 on:
-  # Temporarily disabled auto-triggers to reduce workflow spam
-  # push:
-  #   branches: [ main, develop, staging ]
-  #   tags: [ 'v*' ]
-  # pull_request:
-  #   branches: [ main, develop ]
+  push:
+    branches:
+      - main
+      - 'release/*'
+      - 'hotfix/*'
+    paths:
+      - 'backend/**'
+      - 'frontend/**'
+      - 'k8s/**'
+  pull_request:
+    branches:
+      - main
+      - 'release/*'
+      - 'hotfix/*'
+    paths:
+      - 'backend/**'
+      - 'frontend/**'
+      - 'k8s/**'
   workflow_dispatch:
     inputs:
       environment:
