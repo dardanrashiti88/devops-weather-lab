@@ -20,6 +20,9 @@ resources:
   - ingress.yaml
   - cronjob.yaml
   - cronjob-advanced.yaml
+  - nginx-configmap.yaml
+  - nginx-deployment.yaml
+  - nginx-service.yaml
 
 commonLabels:
   app.kubernetes.io/name: lab-project
