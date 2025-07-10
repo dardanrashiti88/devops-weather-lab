@@ -39,3 +39,13 @@ spec:
             name: grafana
             port:
               number: 3000 
+  - host: nginx.local
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: nginx
+            port:
+              number: 80 
