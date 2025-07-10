@@ -16,8 +16,4 @@ data:
 
       - job_name: 'backend'
         static_configs:
-          - targets: ['backend:3000']
-
-      - job_name: 'mysql-exporter'
-        static_configs:
-          - targets: ['mysql-exporter:9104'] 
+          - targets: ['backend:3000'] 
