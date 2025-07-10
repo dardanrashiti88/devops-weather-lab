@@ -119,8 +119,6 @@ main() {
     echo
     
     # 4. Monitoring
-    deploy_resource "mysql-exporter-deployment.yaml" "MySQL Exporter Deployment"
-    deploy_resource "mysql-exporter-service.yaml" "MySQL Exporter Service"
     deploy_resource "prometheus-deployment.yaml" "Prometheus Deployment"
     deploy_resource "prometheus-service.yaml" "Prometheus Service"
     deploy_resource "grafana-deployment.yaml" "Grafana Deployment"
@@ -132,6 +130,10 @@ main() {
     deploy_resource "backend-service.yaml" "Backend Service"
     deploy_resource "frontend-deployment.yaml" "Frontend Deployment"
     deploy_resource "frontend-service.yaml" "Frontend Service"
+    # 5b. NGINX Example
+    deploy_resource "nginx-configmap.yaml" "NGINX ConfigMap"
+    deploy_resource "nginx-deployment.yaml" "NGINX Deployment"
+    deploy_resource "nginx-service.yaml" "NGINX Service"
     echo
     
     # 6. Networking
@@ -144,7 +146,7 @@ main() {
     wait_for_pods "frontend"
     wait_for_pods "prometheus"
     wait_for_pods "grafana"
-    wait_for_pods "mysql-exporter"
+    wait_for_pods "nginx"
     echo
     
     # Show deployment status
@@ -162,6 +164,7 @@ main() {
     echo "  - Frontend: http://frontend.local"
     echo "  - Prometheus: http://prometheus.local"
     echo "  - Grafana: http://grafana.local (admin/admin)"
+    echo "  - NGINX: http://nginx.local"
     echo
     print_warning "Don't forget to add the hostnames to your /etc/hosts file or configure DNS"
 }
