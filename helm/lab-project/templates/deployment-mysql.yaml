@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "lab-project.fullname" . }}-mysql
+  labels:
+    app: {{ include "lab-project.name" . }}
+    component: mysql
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ include "lab-project.name" . }}
+      component: mysql
+  template:
+    metadata:
+      labels:
+        app: {{ include "lab-project.name" . }}
+        component: mysql
+    spec:
+      containers:
+        - name: mysql
+          image: {{ .Values.mysql.image.repository }}:{{ .Values.mysql.image.tag }}
+          imagePullPolicy: {{ .Values.mysql.image.pullPolicy }}
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.mysql.auth.existingSecret }}
+                  key: rootPassword
+            - name: MYSQL_DATABASE
+              value: {{ .Values.mysql.auth.database }}
+            {{- if .Values.mysql.auth.username }}
+            - name: MYSQL_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.mysql.auth.existingSecret }}
+                  key: username
+            {{- end }}
+            {{- if .Values.mysql.auth.password }}
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.mysql.auth.existingSecret }}
+                  key: password
+            {{- end }}
+          ports:
+            - containerPort: 3306
+          volumeMounts:
+            - name: mysql-persistent-storage
+              mountPath: /var/lib/mysql
+          resources:
+            {{- toYaml .Values.mysql.resources | nindent 12 }}
+      volumes:
+        - name: mysql-persistent-storage
+          persistentVolumeClaim:
+            claimName: {{ include "lab-project.fullname" . }}-mysql-pvc 
