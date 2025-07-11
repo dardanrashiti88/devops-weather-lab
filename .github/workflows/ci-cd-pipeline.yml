@@ -10,6 +10,7 @@ on:
       - 'backend/**'
       - 'frontend/**'
       - 'k8s/**'
+      - 'helm/**'
   pull_request:
     branches:
       - main
@@ -19,6 +20,7 @@ on:
       - 'backend/**'
       - 'frontend/**'
       - 'k8s/**'
+      - 'helm/**'
   workflow_dispatch:
     inputs:
       environment:
@@ -248,6 +250,9 @@ jobs:
           platforms: linux/amd64
           build-args: |
             BUILDKIT_INLINE_CACHE=1
+
+      - name: 🧪 Helm Lint
+        run: helm lint ./helm/lab-project
 
       - name: 📦 Create Helm package
         run: |
