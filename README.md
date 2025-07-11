@@ -4,6 +4,35 @@ A modern, full-stack lab environment for enterprise-grade application developmen
 
 ---
 
+## 🆕 Recent Features & Improvements
+
+- **Performance Testing:**  
+  Added a full GitHub Actions workflow for load, stress, and memory leak testing using Artillery and Clinic.js.  
+  _See: `.github/workflows/performance.yml`_
+
+- **Advanced CI/CD Pipelines:**  
+  - Multi-environment pipelines for staging, production, and feature branches.
+  - Security scanning (Trivy, npm audit, ZAP).
+  - Automated build, test, and deployment for backend and frontend.
+  _See: `.github/workflows/ci-cd-pipeline.yml`, `staging-only.yml`, `production-only.yml`_
+
+- **ArgoCD Integration:**  
+  - Declarative GitOps deployment with ArgoCD for Kubernetes.
+  - Example manifest: `k8s/argo-app.yaml`
+
+- **Branching Strategy:**  
+  - **main**: Stable production-ready code.
+  - **develop/staging**: Integration and pre-production testing.
+  - **feature/**: New features and experiments.
+  - **release/**: Release preparation.
+  - **hotfix/**: Urgent fixes for production.
+
+- **Makefile Automation:**  
+  - Unified commands for build, deploy, test, security, and performance.
+  - _See: `Makefile` for all available commands._
+
+---
+
 ## 🏗️ Architecture Overview
 
 - **Backend:** Node.js (Express) REST API
@@ -26,9 +55,12 @@ lab2/
 ├── monitoring/              # Prometheus config
 ├── scripts/                 # Automation scripts (start, stop, deploy, backup, etc.)
 ├── k8s/                     # Kubernetes manifests & deployment scripts
+│   └── argo-app.yaml        # ArgoCD application manifest
 ├── terraform/               # Azure infrastructure as code
 ├── helm/                    # Helm chart for K8s deployment
 ├── docker-compose.yaml      # Docker Compose config
+├── .github/workflows/       # CI/CD, security, and performance workflows
+├── Makefile                 # Project automation commands
 └── README.md                # Project documentation
 ```
 
@@ -259,16 +291,23 @@ helm install lab-project .
 
 ## 📝 Development & Contribution
 
-- **Add new services:**
-  - Docker: Add to `docker-compose.yaml`
-  - K8s: Add deployment/service YAML or Helm values
-  - Monitoring: Add Prometheus targets, Grafana dashboards
-- **Modify CronJobs:**
-  - Edit `k8s/cronjob.yaml` or `k8s/cronjob-advanced.yaml`, apply with `kubectl`
-- **Contribute:**
-  1. Fork repo, create feature branch
-  2. Make changes, test with Docker & K8s
-  3. Submit pull request
+- **Feature Branches:**  
+  Create a new branch from `develop` or `main`:
+  ```
+  git checkout -b feature/my-new-feature
+  ```
+- **Pull Requests:**  
+  - Open PRs against `develop` for new features.
+  - Use clear, descriptive titles and link related issues.
+- **CI/CD:**  
+  - All PRs are automatically tested and scanned.
+  - Only passing PRs are merged.
+
+---
+
+## 📝 Changelog
+
+- _See `CHANGELOG.md` for a detailed list of features and fixes._
 
 ---
 
