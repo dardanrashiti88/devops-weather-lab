@@ -5,13 +5,14 @@ import WeatherIcon from './WeatherIcon';
 import './CurrentWeather.css';
 
 const cardVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
+  hidden: { opacity: 0, y: 24 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: 'easeInOut' } },
+  exit: { opacity: 0, y: 24, transition: { duration: 0.3, ease: 'easeInOut' } },
 };
 
 const CurrentWeather = ({ data, location }) => {
   return (
-    <motion.div className="current-weather-card dashboard-card glass glow" variants={cardVariants}>
+    <motion.div className="current-weather-card dashboard-card glass glow" variants={cardVariants} initial="hidden" animate="visible" exit="exit">
       <div className="location-header">
         <MapPin size={18} />
         <h2>{location.name}, {location.country}</h2>

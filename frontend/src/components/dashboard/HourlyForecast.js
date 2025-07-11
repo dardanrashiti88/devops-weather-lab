@@ -5,8 +5,9 @@ import WeatherIcon from './WeatherIcon';
 import './HourlyForecast.css';
 
 const cardVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
+  hidden: { opacity: 0, y: 24 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: 'easeInOut' } },
+  exit: { opacity: 0, y: 24, transition: { duration: 0.3, ease: 'easeInOut' } },
 };
 
 const CustomTooltip = ({ active, payload, label }) => {
@@ -24,7 +25,7 @@ const CustomTooltip = ({ active, payload, label }) => {
 
 const HourlyForecast = ({ data }) => {
   return (
-    <motion.div className="hourly-forecast-card dashboard-card glass glow" variants={cardVariants}>
+    <motion.div className="hourly-forecast-card dashboard-card glass glow" variants={cardVariants} initial="hidden" animate="visible" exit="exit">
       <h3 className="chart-title">Hourly Forecast</h3>
       <ResponsiveContainer width="100%" height={200}>
         <AreaChart data={data} margin={{ top: 20, right: 30, left: -10, bottom: 0 }}>

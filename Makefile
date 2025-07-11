@@ -1,7 +1,7 @@
 # Lab Project Makefile
 # Provides easy commands for managing the lab environment with CI/CD capabilities
 
-.PHONY: help build deploy start stop status logs clean test backup restore security performance
+.PHONY: help build deploy start stop status logs clean test backup restore security performance exporter-logs exporter-status exporter-restart
 
 # Default target
 .DEFAULT_GOAL := help
@@ -41,12 +41,21 @@ help: ## Show this help message
 	@echo "  make start          # Start environment (auto-detect)"
 	@echo "  make status         # Show environment status"
 	@echo "  make logs           # Show logs"
+	@echo "  make exporter-logs  # Show MySQL exporter logs"
+	@echo "  make exporter-status# Show MySQL exporter status"
+	@echo "  make exporter-restart# Restart MySQL exporter"
 	@echo "  make test           # Run all tests"
 	@echo "  make security       # Run security scans"
 	@echo "  make performance    # Run performance tests"
 	@echo "  make clean          # Clean up everything"
 	@echo ""
 	@echo "$(PURPLE)🌐 Current Environment: $(DETECT_ENV)$(NC)"
+	@echo ""
+	@echo "$(CYAN)✨ New 2025 Features:$(NC)"
+	@echo "  - Multi-city dashboard, unit switching, radar overlays, advanced analytics, news feed, personalization, accessibility, user accounts, and more."
+	@echo "  - MySQL Exporter for Prometheus with secure .my.cnf config."
+	@echo "  - High-end Dockerfile, custom Nginx config, and health checks."
+	@echo "  - See README.md for full details."
 
 # =============================================================================
 # BUILD TARGETS

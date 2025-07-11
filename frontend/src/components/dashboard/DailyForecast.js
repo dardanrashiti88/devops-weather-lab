@@ -4,13 +4,14 @@ import WeatherIcon from './WeatherIcon';
 import './DailyForecast.css';
 
 const cardVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
+  hidden: { opacity: 0, y: 24 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: 'easeInOut' } },
+  exit: { opacity: 0, y: 24, transition: { duration: 0.3, ease: 'easeInOut' } },
 };
 
 const DailyForecast = ({ data }) => {
   return (
-    <motion.div className="daily-forecast-card dashboard-card glass glow" variants={cardVariants}>
+    <motion.div className="daily-forecast-card dashboard-card glass glow" variants={cardVariants} initial="hidden" animate="visible" exit="exit">
       <h3 className="daily-title">7-Day Forecast</h3>
       <div className="daily-list">
         {data.map((day, index) => (

@@ -10,6 +10,17 @@
   width: 100%;
 }
 
+/* Grid layout for new components */
+.main-grid > *:nth-child(1) { grid-column: span 2; } /* CurrentWeather */
+.main-grid > *:nth-child(2) { grid-column: span 2; } /* HourlyForecast */
+.main-grid > *:nth-child(3) { grid-column: span 2; } /* DailyForecast */
+.main-grid > *:nth-child(4) { grid-column: span 2; } /* WeatherDetails */
+.main-grid > *:nth-child(5) { grid-column: span 1; } /* AirQuality */
+.main-grid > *:nth-child(6) { grid-column: span 1; } /* UVIndex */
+.main-grid > *:nth-child(7) { grid-column: span 2; } /* WeatherAlerts */
+.main-grid > *:nth-child(8) { grid-column: span 2; } /* FavoriteLocations */
+.main-grid > *:nth-child(9) { grid-column: span 2; } /* WeatherHistory */
+
 .dashboard-card {
   transition: all 0.3s ease;
 }
@@ -23,10 +34,26 @@
   .main-grid {
     grid-template-columns: repeat(2, 1fr);
   }
+  
+  /* Adjust grid spans for medium screens */
+  .main-grid > *:nth-child(1) { grid-column: span 2; }
+  .main-grid > *:nth-child(2) { grid-column: span 2; }
+  .main-grid > *:nth-child(3) { grid-column: span 2; }
+  .main-grid > *:nth-child(4) { grid-column: span 2; }
+  .main-grid > *:nth-child(5) { grid-column: span 1; }
+  .main-grid > *:nth-child(6) { grid-column: span 1; }
+  .main-grid > *:nth-child(7) { grid-column: span 2; }
+  .main-grid > *:nth-child(8) { grid-column: span 2; }
+  .main-grid > *:nth-child(9) { grid-column: span 2; }
 }
 
 @media (max-width: 768px) {
   .main-grid {
     grid-template-columns: 1fr;
+  }
+  
+  /* All components span full width on mobile */
+  .main-grid > * {
+    grid-column: span 1 !important;
   }
 } 

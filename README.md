@@ -4,15 +4,30 @@ A modern, full-stack lab environment for enterprise-grade application developmen
 
 ---
 
-## 🏗️ Architecture Overview
+## 🆕 2025 Upgrades & Advanced Features
 
-- **Backend:** Node.js (Express) REST API
-- **Frontend:** React (WeatherTech UI)
-- **Database:** MySQL 8.0 (with rich schema & seed data)
-- **Monitoring:** Prometheus (metrics), Grafana (dashboards)
-- **Automation:** Daily CronJobs for health checks, backup, and optimization
-- **Deployment:** Docker Compose, Kubernetes, Azure (Terraform), Helm
-- **Scripts:** Automated scripts for start, stop, deploy, backup, cleanup, and health-check
+### Frontend (WeatherTech)
+- **Multi-city dashboard:** Add, remove, and view weather for multiple favorite cities in a responsive grid.
+- **Unit switching:** Instantly toggle Celsius/Fahrenheit, km/h/mph, etc. (Settings menu).
+- **Weather radar overlays:** Precipitation, clouds, etc. with animated radar and layer toggles.
+- **Advanced analytics:** Precipitation, wind, UV, and date range selection for analytics.
+- **Personalization:** Theme and accent color picker, preferences saved locally.
+- **Weather news feed:** Articles and tips, with unread indicators and category filters.
+- **Accessibility:** Voice search, high-contrast mode, screen reader support.
+- **User accounts & sync:** (Optional) Sign in, sync preferences and favorites to the cloud.
+- **Modern UI:** Glassmorphism, smooth animations, dark/light mode, and fully responsive design.
+
+### Monitoring & Observability
+- **MySQL Exporter:** Securely exposes MySQL metrics for Prometheus using a `.my.cnf` file and a dedicated exporter user.
+- **Prometheus:** Now scrapes MySQL metrics via mysqld-exporter (`/metrics` on port 9104).
+- **Grafana:** Ready for MySQL dashboards and advanced analytics.
+
+### Docker & DevOps
+- **High-end, multi-stage Dockerfile** for frontend with security, performance, and best practices.
+- **Custom Nginx config** for SPA routing, security headers, and caching.
+- **Docker Compose volumes** for secrets/configs (e.g., `.my.cnf` for exporter credentials).
+- **Health checks** for all services.
+- **.my.cnf** for exporter credentials (best practice).
 
 ---
 
@@ -22,7 +37,7 @@ A modern, full-stack lab environment for enterprise-grade application developmen
 lab2/
 ├── backend/                 # Node.js API server
 ├── frontend/                # React app (WeatherTech)
-├── db/                      # MySQL schema & seed scripts
+├── db/                      # MySQL schema & seed scripts, exporter.my.cnf
 ├── monitoring/              # Prometheus config
 ├── scripts/                 # Automation scripts (start, stop, deploy, backup, etc.)
 ├── k8s/                     # Kubernetes manifests & deployment scripts
@@ -44,7 +59,8 @@ lab2/
 
 - **React Frontend:**
   - WeatherTech UI: dashboard, map, forecast, analytics, settings
-  - Modern design (glassmorphism, gradients, responsive)
+  - Multi-city, unit switching, radar overlays, advanced analytics, news feed, personalization, accessibility, and more
+  - Modern glassmorphism design, smooth animations, dark/light mode, and responsive
   - Mock weather data for demo; easy to connect to real APIs
 
 - **Database:**
@@ -53,9 +69,9 @@ lab2/
   - User creation for phpMyAdmin and exporters
 
 - **Monitoring:**
-  - Prometheus scrapes backend, node exporter, Grafana
+  - Prometheus scrapes backend, node exporter, Grafana, and MySQL exporter
   - Grafana dashboards (pre-configured, admin/admin)
-  - MySQL exporter for DB metrics
+  - MySQL exporter for DB metrics (secure `.my.cnf` config)
 
 - **Automation & Maintenance:**
   - Daily CronJobs (health checks, backup, optimization, cleanup)
@@ -77,7 +93,8 @@ lab2/
 ### 1. Docker Compose (Development)
 ```bash
 docker-compose up --build
-# Access: Frontend http://localhost:5173, Backend http://localhost:3000
+# Access: Frontend http://localhost:3002, Backend http://localhost:3000
+# Prometheus: http://localhost:9090, Grafana: http://localhost:3001, MySQL Exporter: http://localhost:9104/metrics
 ```
 
 ### 2. Kubernetes (Production)
@@ -106,6 +123,46 @@ helm install lab-project .
 ./scripts/start.sh   # Starts best environment
 ./scripts/stop.sh    # Stops running environments
 ```
+
+---
+
+## 🌤️ Frontend (WeatherTech)
+
+- **Stack:** React, React Router, Framer Motion, Recharts, Leaflet, Styled Components
+- **Features:**
+  - Multi-city dashboard, unit switching, radar overlays, advanced analytics, news feed, personalization, accessibility, user accounts, and more
+  - Modern, responsive, animated UI (glassmorphism, dark/light mode)
+  - Settings page with all advanced options
+  - Mock weather data for demo; easy to connect to real APIs
+
+---
+
+## 📊 Monitoring & Observability
+
+- **Prometheus:**
+  - Scrapes backend (`/metrics`), node exporter, Grafana, and MySQL exporter
+  - Config: `monitoring/prometheus.yml`
+- **Grafana:**
+  - Pre-configured dashboards
+  - Access: admin/admin (default)
+- **MySQL Exporter:**
+  - Exposes DB metrics for Prometheus
+  - Uses secure `.my.cnf` file for credentials (see `db/exporter.my.cnf`)
+
+---
+
+## 🐳 Docker Compose & DevOps
+
+- **Frontend:**
+  - Multi-stage Dockerfile for production and development
+  - Custom Nginx config for SPA routing, security, and caching
+  - Volumes for secrets/configs (e.g., `.my.cnf` for exporter)
+  - Health checks for all services
+- **MySQL Exporter:**
+  - Uses `.my.cnf` for credentials (best practice)
+  - Dedicated exporter user with least-privilege permissions
+- **All services:**
+  - Health checks, restart policies, and secure networking
 
 ---
 

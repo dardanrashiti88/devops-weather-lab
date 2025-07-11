@@ -1,7 +1,49 @@
-.App {
+:root {
+  --text-primary: #222222;
+  --text-secondary: #6b7280;
+  --accent-color: #2563eb;
+  --accent-gradient: linear-gradient(90deg, #2563eb 0%, #60a5fa 100%);
+  --bg-primary: #ffffff;
+  --bg-secondary: #f3f6fa;
+  --glass-bg: rgba(255,255,255,0.7);
+  --glass-blur: blur(16px);
+}
+
+body, .App {
   min-height: 100vh;
-  display: flex;
-  flex-direction: column;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font-family: 'Inter', 'Poppins', 'Montserrat', Arial, sans-serif;
+  font-size: 16px;
+  letter-spacing: 0.01em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background 0.3s, color 0.3s;
+}
+
+body.dark-mode, .dark-mode {
+  --text-primary: #f3f6fa;
+  --text-secondary: #b0b8c9;
+  --accent-color: #60a5fa;
+  --accent-gradient: linear-gradient(90deg, #60a5fa 0%, #2563eb 100%);
+  --bg-primary: #181c25;
+  --bg-secondary: #10131a;
+  --glass-bg: rgba(24,28,37,0.7);
+  --glass-blur: blur(16px);
+}
+
+.main-content {
+  flex: 1;
+  padding: 3rem 2rem 2rem 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+  background: var(--bg-primary);
+  border-radius: 32px;
+  box-shadow: 0 8px 48px rgba(0,0,0,0.07);
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+  transition: background 0.3s;
 }
 
 .loading-screen {
@@ -9,7 +51,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+  background: var(--bg-secondary);
 }
 
 .loading-content {
@@ -17,18 +59,37 @@
   padding: 2rem;
 }
 
-.main-content {
-  flex: 1;
-  padding: 2rem;
-  max-width: 1400px;
-  margin: 0 auto;
-  width: 100%;
+.gradient-text {
+  background: var(--accent-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-fill-color: transparent;
+}
+
+/* Glassmorphism card */
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  box-shadow: 0 4px 32px rgba(0,0,0,0.06);
+  border-radius: 20px;
+  border: 1px solid rgba(0,0,0,0.04);
 }
 
 /* Responsive design */
-@media (max-width: 768px) {
+@media (max-width: 900px) {
   .main-content {
-    padding: 1rem;
+    padding: 1.5rem 0.5rem;
+    border-radius: 18px;
+  }
+}
+
+@media (max-width: 600px) {
+  .main-content {
+    padding: 0.5rem 0.1rem;
+    border-radius: 8px;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
   }
 }
 

@@ -4,8 +4,9 @@ import { Droplet, Wind, Compass, Eye, Sunrise, Sunset, Thermometer } from 'lucid
 import './WeatherDetails.css';
 
 const cardVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
+  hidden: { opacity: 0, y: 24 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: 'easeInOut' } },
+  exit: { opacity: 0, y: 24, transition: { duration: 0.3, ease: 'easeInOut' } },
 };
 
 const InfoCard = ({ icon, title, value, unit }) => (
@@ -22,7 +23,7 @@ const InfoCard = ({ icon, title, value, unit }) => (
 
 const WeatherDetails = ({ data }) => {
   return (
-    <motion.div className="weather-details-card dashboard-card" variants={cardVariants}>
+    <motion.div className="weather-details-card dashboard-card" variants={cardVariants} initial="hidden" animate="visible" exit="exit">
       <h3 className="details-title">Weather Details</h3>
       <div className="details-grid">
         <InfoCard icon={<Droplet size={20} />} title="Humidity" value={data.humidity} unit="%" />
