@@ -16,4 +16,4 @@ data:
 
       - job_name: 'backend'
         static_configs:
-          - targets: ['backend:3000'] 
+          - targets: ['backend:3000']

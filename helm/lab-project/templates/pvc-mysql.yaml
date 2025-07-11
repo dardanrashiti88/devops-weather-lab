@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "lab-project.fullname" . }}-mysql-pvc
+  labels:
+    app: {{ include "lab-project.name" . }}
+    component: mysql
+spec:
+  accessModes:
+    {{- toYaml .Values.mysql.primary.persistence.accessModes | nindent 4 }}
+  resources:
+    requests:
+      storage: {{ .Values.mysql.primary.persistence.size }}
+  storageClassName: {{ .Values.mysql.primary.persistence.storageClass | quote }} 
