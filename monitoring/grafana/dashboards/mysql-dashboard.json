@@ -1,0 +1,85 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "MySQL Monitoring Dashboard",
+    "tags": ["mysql", "database"],
+    "style": "dark",
+    "timezone": "browser",
+    "panels": [
+      {
+        "id": 1,
+        "title": "MySQL Server Status",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "mysql_up",
+            "legendFormat": "MySQL Server"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "thresholds": {
+              "steps": [
+                {"color": "red", "value": null},
+                {"color": "green", "value": 1}
+              ]
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0}
+      },
+      {
+        "id": 2,
+        "title": "MySQL Connections",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "mysql_global_status_threads_connected",
+            "legendFormat": "Connected"
+          },
+          {
+            "expr": "mysql_global_status_threads_running",
+            "legendFormat": "Running"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0}
+      },
+      {
+        "id": 3,
+        "title": "MySQL Queries per Second",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(mysql_global_status_queries[5m])",
+            "legendFormat": "Queries/sec"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8}
+      },
+      {
+        "id": 4,
+        "title": "MySQL InnoDB Buffer Pool",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "mysql_global_status_innodb_buffer_pool_pages_data",
+            "legendFormat": "Data Pages"
+          },
+          {
+            "expr": "mysql_global_status_innodb_buffer_pool_pages_free",
+            "legendFormat": "Free Pages"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8}
+      }
+    ],
+    "time": {
+      "from": "now-1h",
+      "to": "now"
+    },
+    "refresh": "10s"
+  }
+} 
