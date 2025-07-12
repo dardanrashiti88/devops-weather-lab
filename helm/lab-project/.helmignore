@@ -1,0 +1,12 @@
+# Patterns to ignore when packaging Helm charts.
+# This file is similar to .gitignore, but for Helm.
+*.tgz
+*.tar.gz
+.DS_Store
+.git/
+.gitignore
+*.swp
+*.bak
+*.tmp
+*.orig
+*.md 

@@ -19,7 +19,7 @@ backend:
   enabled: true
   replicaCount: 3
   image:
-    repository: lab-project/backend
+    repository: dardanrashiti88/lab2-backend
     tag: latest
     pullPolicy: IfNotPresent
   
@@ -63,7 +63,7 @@ backend:
     - name: NODE_ENV
       value: production
     - name: MYSQL_HOST
-      value: mysql-service
+      value: lab-project-mysql
     - name: MYSQL_PORT
       value: "3306"
     - name: MYSQL_DATABASE
@@ -98,8 +98,8 @@ frontend:
   enabled: true
   replicaCount: 3
   image:
-    repository: lab-project/frontend
-    tag: latest
+    repository: nginx
+    tag: alpine
     pullPolicy: IfNotPresent
   
   service:
@@ -161,16 +161,16 @@ mysql:
     pullPolicy: IfNotPresent
   
   auth:
-    rootPassword: ""
+    rootPassword: "your-mysql-password"
     database: lab_db
-    username: ""
-    password: ""
+    username: "labuser"
+    password: "labpass123"
     existingSecret: mysql-secret
   
   primary:
     persistence:
       enabled: true
-      storageClass: ""
+      storageClass: "standard"
       size: 10Gi
       accessModes:
         - ReadWriteOnce
