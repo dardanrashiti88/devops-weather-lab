@@ -4,7 +4,7 @@ services:
   backend:
     build: ./backend
     ports:
-      - "${BACKEND_PORT:-3000}:${BACKEND_PORT:-3000}"
+      - "4000:4000"
     environment:
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-your-mysql-password}
       - MYSQL_HOST=mysql-db

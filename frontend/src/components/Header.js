@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Search, Settings, Moon, Sun } from 'lucide-react';
@@ -7,10 +7,21 @@ import './Header.css';
 
 const Header = () => {
   const [isDarkMode, setIsDarkMode] = React.useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    setIsAuthenticated(!!localStorage.getItem('token'));
+  }, []);
 
   const toggleTheme = () => {
     setIsDarkMode(!isDarkMode);
     document.body.classList.toggle('dark-mode');
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    setIsAuthenticated(false);
+    window.location.reload();
   };
 
   return (
@@ -46,6 +57,16 @@ const Header = () => {
         <NavLink to="/settings" className="nav-link">
           <Settings size={22} />
         </NavLink>
+        <div className="auth-buttons">
+          {!isAuthenticated ? (
+            <>
+              <a href="/login">Login</a>
+              <a href="/register">Register</a>
+            </>
+          ) : (
+            <button onClick={handleLogout}>Logout</button>
+          )}
+        </div>
       </div>
     </motion.header>
   );

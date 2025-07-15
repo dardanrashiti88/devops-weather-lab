@@ -58,9 +58,10 @@ lab2/
   - Graceful shutdown & security best practices
 
 - **React Frontend:**
-  - WeatherTech UI: dashboard, map, forecast, analytics, settings
-  - Multi-city, unit switching, radar overlays, advanced analytics, news feed, personalization, accessibility, and more
-  - Modern glassmorphism design, smooth animations, dark/light mode, and responsive
+  - WeatherTech UI: dashboard, map, forecast, analytics, settings, login/register
+  - Multi-city, unit switching, radar overlays, advanced analytics, news feed, personalization, accessibility, authentication, and more
+  - Modern, responsive, animated UI (glassmorphism, dark/light mode)
+  - Settings page with all advanced options
   - Mock weather data for demo; easy to connect to real APIs
 
 - **Database:**
@@ -174,9 +175,32 @@ helm install lab-project .
   - `GET /health` — Health check (JSON)
   - `GET /metrics` — Prometheus metrics
   - `GET /env` — Safe environment info
+  - `POST /register` — User registration (username, password)
+  - `POST /login` — User login (returns JWT)
+  - `GET /profile` — Protected endpoint (requires JWT)
 - **Config:**
   - Reads DB config from environment variables
   - Exposes Prometheus metrics for monitoring
+
+---
+
+## 🔐 Authentication & User Accounts (2025)
+
+- **User Registration & Login:**
+  - Secure registration and login with username and password
+  - Passwords are hashed with bcrypt before storage
+  - JWT-based authentication for protected endpoints
+  - `/register` and `/login` endpoints in the backend
+  - `/profile` endpoint requires a valid JWT
+
+- **Frontend Login/Register UI:**
+  - Modern, animated login and registration pages
+  - Responsive design, glassmorphism, and error handling
+  - Google OAuth login button (optional, backend endpoint can be added)
+
+- **Security:**
+  - JWT secret and DB credentials managed via environment variables
+  - All sensitive data is never exposed to the frontend
 
 ---
 

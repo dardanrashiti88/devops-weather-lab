@@ -11,6 +11,7 @@ import WeatherAlerts from './dashboard/WeatherAlerts';
 import FavoriteLocations from './dashboard/FavoriteLocations';
 import WeatherHistory from './dashboard/WeatherHistory';
 import './Dashboard.css';
+import { jwtDecode } from 'jwt-decode';
 
 const cities = [
   { name: 'Gjilan', country: 'XK' },
@@ -50,6 +51,15 @@ const Dashboard = () => {
     setLocation(locationName);
   };
 
+  let username = 'Guest';
+  const token = localStorage.getItem('token');
+  if (token) {
+    try {
+      const decoded = jwtDecode(token);
+      username = decoded.username;
+    } catch {}
+  }
+
   if (isLoading) {
     return <div className="loading">Loading dashboard...</div>;
   }
@@ -84,6 +94,9 @@ const Dashboard = () => {
       animate="visible"
       exit="exit"
     >
+      <div style={{ marginBottom: '1rem', textAlign: 'left', fontWeight: 'bold', fontSize: '1.2rem' }}>
+        Welcome, {username}!
+      </div>
       <div style={{ marginBottom: '1rem', textAlign: 'right' }}>
         <select value={currentLocation} onChange={handleCityChange} style={{ padding: '0.5rem', borderRadius: '8px', fontSize: '1rem' }}>
           {cities.map(city => (

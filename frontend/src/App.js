@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import Header from './components/Header';
 import Dashboard from './components/Dashboard';
 import { WeatherMap, Forecast, Analytics, Settings } from './components/placeholders';
 import { WeatherProvider } from './context/WeatherContext';
 import './App.css';
+import Login from './pages/Login';
+import Register from './pages/Register';
 
-function App() {
+function AppContent() {
+  const location = useLocation();
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -40,23 +43,40 @@ function App() {
     );
   }
 
+  // Only show bare routes for login/register
+  if (location.pathname === '/login' || location.pathname === '/register') {
+    return (
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+      </Routes>
+    );
+  }
+
+  // Main layout for all other routes
+  return (
+    <div className="App">
+      <Header />
+      <main className="main-content">
+        <AnimatePresence mode="wait">
+          <Routes>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/map" element={<WeatherMap />} />
+            <Route path="/forecast" element={<Forecast />} />
+            <Route path="/analytics" element={<Analytics />} />
+            <Route path="/settings" element={<Settings />} />
+          </Routes>
+        </AnimatePresence>
+      </main>
+    </div>
+  );
+}
+
+function App() {
   return (
     <WeatherProvider>
       <Router>
-        <div className="App">
-          <Header />
-          <main className="main-content">
-            <AnimatePresence mode="wait">
-              <Routes>
-                <Route path="/" element={<Dashboard />} />
-                <Route path="/map" element={<WeatherMap />} />
-                <Route path="/forecast" element={<Forecast />} />
-                <Route path="/analytics" element={<Analytics />} />
-                <Route path="/settings" element={<Settings />} />
-              </Routes>
-            </AnimatePresence>
-          </main>
-        </div>
+        <AppContent />
       </Router>
     </WeatherProvider>
   );
