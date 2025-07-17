@@ -65,4 +65,4 @@ scenarios:
       - get:
           url: "/api/users/profile"
           headers:
-            Authorization: "Bearer {{ $randomString() }}" 
+            Authorization: "Bearer {{ $randomString() }}"
