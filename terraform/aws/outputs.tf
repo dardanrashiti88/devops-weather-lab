@@ -36,4 +36,24 @@ output "cluster_name" {
 output "cluster_oidc_issuer_url" {
   description = "The URL on the EKS cluster for the OpenID Connect identity provider"
   value       = aws_eks_cluster.main.identity[0].oidc[0].issuer
+}
+
+output "rds_endpoint" {
+  description = "RDS MySQL endpoint"
+  value       = aws_db_instance.mysql.endpoint
+}
+
+output "s3_bucket_name" {
+  description = "S3 bucket name for assets/backups"
+  value       = aws_s3_bucket.assets.bucket
+}
+
+output "ecr_backend_url" {
+  description = "ECR repository URL for backend image"
+  value       = aws_ecr_repository.backend.repository_url
+}
+
+output "ecr_frontend_url" {
+  description = "ECR repository URL for frontend image"
+  value       = aws_ecr_repository.frontend.repository_url
 } 

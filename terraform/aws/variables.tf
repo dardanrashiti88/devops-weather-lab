@@ -50,4 +50,10 @@ variable "min_size" {
   description = "Minimum number of worker nodes"
   type        = number
   default     = 1
+}
+
+variable "db_password" {
+  description = "Password for the RDS MySQL root user"
+  type        = string
+  sensitive   = true
 } 
