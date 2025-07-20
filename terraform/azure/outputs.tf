@@ -32,4 +32,29 @@ output "mysql_connection_string" {
   description = "MySQL connection string"
   value       = "mysql://mysqladmin:${var.mysql_password}@${azurerm_mysql_server.mysql.fqdn}:3306/lab_db"
   sensitive   = true
+}
+
+output "key_vault_name" {
+  description = "Azure Key Vault name"
+  value       = azurerm_key_vault.main.name
+}
+
+output "mysql_password_secret_uri" {
+  description = "Key Vault Secret URI for MySQL password"
+  value       = azurerm_key_vault_secret.mysql_password.id
+}
+
+output "grafana_password_secret_uri" {
+  description = "Key Vault Secret URI for Grafana password"
+  value       = azurerm_key_vault_secret.grafana_password.id
+}
+
+output "storage_account_name" {
+  description = "Storage account name for assets/backups"
+  value       = azurerm_storage_account.sa.name
+}
+
+output "assets_container_name" {
+  description = "Blob container name for assets/backups"
+  value       = azurerm_storage_container.assets.name
 } 
