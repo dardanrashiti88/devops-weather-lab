@@ -87,6 +87,9 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker
+      - run:
+          name: Docker Login
+          command: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_LOGIN" --password-stdin
       - docker/check
       - docker/build:
           image: "$DOCKER_LOGIN/lab2-backend"
@@ -101,6 +104,9 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker
+      - run:
+          name: Docker Login
+          command: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_LOGIN" --password-stdin
       - docker/check
       - docker/build:
           image: "$DOCKER_LOGIN/lab2-frontend"
