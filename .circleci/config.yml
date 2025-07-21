@@ -9,6 +9,9 @@ executors:
   node-executor:
     docker:
       - image: cimg/node:18.17
+  docker-executor:
+    docker:
+      - image: cimg/base:stable
 
 commands:
   npm_install:
@@ -80,7 +83,7 @@ jobs:
           working_directory: frontend
 
   build_and_push_backend:
-    executor: docker/default
+    executor: docker-executor
     steps:
       - checkout
       - setup_remote_docker
@@ -94,7 +97,7 @@ jobs:
           tag: "<< pipeline.git.revision >>"
 
   build_and_push_frontend:
-    executor: docker/default
+    executor: docker-executor
     steps:
       - checkout
       - setup_remote_docker
@@ -108,7 +111,7 @@ jobs:
           tag: "<< pipeline.git.revision >>"
 
   deploy_to_kubernetes:
-    executor: docker/default
+    executor: docker-executor
     steps:
       - kubernetes/install
       - run:
