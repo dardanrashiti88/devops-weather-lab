@@ -126,8 +126,8 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: 🏗️ Start application for ZAP scan
         run: |
-          docker run -d --name backend -p 3000:3000 ${{ needs.build.outputs.backend-image }}
-          docker run -d --name frontend -p 8080:8080 ${{ needs.build.outputs.frontend-image }}
+          docker run -d --name backend -p 3000:3000 ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/backend:latest
+          docker run -d --name frontend -p 8080:8080 ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/frontend:latest
           echo "Waiting for application to be ready..."
           sleep 30
       - name: 🛡️ Run OWASP ZAP security scan
