@@ -138,9 +138,9 @@ jobs:
           cmd_options: '-a'
       - name: 🧹 Cleanup application
         if: always()
-          run: |
-            docker stop backend frontend || true
-            docker rm backend frontend || true
+        run: |
+          docker stop backend frontend || true
+          docker rm backend frontend || true
 
   # ========================================
   # CODE QUALITY & TESTING
