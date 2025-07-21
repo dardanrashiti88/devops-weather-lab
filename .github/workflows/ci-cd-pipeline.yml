@@ -96,7 +96,8 @@ jobs:
       - name: 🧹 Cleanup application
         if: always()
         run: |
-          docker compose down || true
+          docker stop backend frontend || true
+          docker rm backend frontend || true
 
       - name: 📋 Set security status
         id: security-check
