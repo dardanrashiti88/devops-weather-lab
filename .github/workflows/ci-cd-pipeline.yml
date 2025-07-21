@@ -129,7 +129,17 @@ jobs:
           docker run -d --name backend -p 3000:3000 ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/backend:latest
           docker run -d --name frontend -p 8080:8080 ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/frontend:latest
           echo "Waiting for application to be ready..."
-          sleep 30
+          for i in {1..30}; do
+            if curl -s http://localhost:8080 > /dev/null; then
+              echo "Frontend is up!"
+              break
+            fi
+            echo "Waiting for frontend... ($i/30)"
+            sleep 2
+          done
+          docker ps
+          docker logs frontend || true
+          curl -v http://localhost:8080
       - name: 🛡️ Run OWASP ZAP security scan
         uses: zaproxy/action-full-scan@v0.8.0
         with:
