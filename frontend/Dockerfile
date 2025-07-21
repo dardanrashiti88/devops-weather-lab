@@ -6,7 +6,7 @@ RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
 # Copy package files
-COPY package.json package-lock.json ./
+COPY frontend/package.json frontend/package-lock.json ./
 
 # Install dependencies with security audit
 RUN npm ci --only=production --legacy-peer-deps && \
@@ -18,10 +18,10 @@ WORKDIR /app
 
 # Copy dependencies from deps stage
 COPY --from=deps /app/node_modules ./node_modules
-COPY package.json package-lock.json ./
+COPY frontend/package.json frontend/package-lock.json ./
 
 # Copy source code
-COPY . .
+COPY frontend/ /app
 
 # Set environment variables for build
 ENV NODE_ENV=production
@@ -62,13 +62,13 @@ FROM node:18-alpine AS development
 WORKDIR /app
 
 # Copy package files
-COPY package.json package-lock.json ./
+COPY frontend/package.json frontend/package-lock.json ./
 
 # Install all dependencies including dev dependencies
 RUN npm install --legacy-peer-deps
 
 # Copy source code
-COPY . .
+COPY frontend/ /app
 
 # Expose development port
 EXPOSE 3000
