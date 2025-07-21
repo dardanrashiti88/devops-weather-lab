@@ -75,11 +75,11 @@ jobs:
           app_dir: frontend
       - run:
           name: "NPM Audit: Backend"
-          command: npm audit --audit-level=high
+          command: npm audit
           working_directory: backend
       - run:
           name: "NPM Audit: Frontend"
-          command: npm audit --audit-level=high
+          command: npm audit
           working_directory: frontend
 
   build_and_push_backend:
