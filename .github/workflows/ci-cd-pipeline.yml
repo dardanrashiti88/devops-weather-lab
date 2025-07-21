@@ -126,11 +126,12 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: 🏗️ Start application for ZAP scan
         run: |
-          docker run -d --name backend -p 3000:3000 ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/backend:latest
-          docker run -d --name frontend -p 8080:8080 ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/frontend:latest
+          docker network create zapnet
+          docker run -d --name backend --network zapnet ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/backend:latest
+          docker run -d --name frontend --network zapnet ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/frontend:latest
           echo "Waiting for application to be ready..."
           for i in {1..30}; do
-            if curl -s http://localhost:8080 > /dev/null; then
+            if docker exec frontend curl -s http://localhost:8080 > /dev/null; then
               echo "Frontend is up!"
               break
             fi
@@ -139,13 +140,15 @@ jobs:
           done
           docker ps
           docker logs frontend || true
-          curl -v http://localhost:8080
+          docker exec frontend curl -v http://localhost:8080
       - name: 🛡️ Run OWASP ZAP security scan
         uses: zaproxy/action-full-scan@v0.8.0
         with:
-          target: 'http://localhost:8080'
+          target: 'http://frontend:8080'
           rules_file_name: '.zap/rules.tsv'
           cmd_options: '-a'
+        env:
+          DOCKER_NETWORK: zapnet
       - name: 🧹 Cleanup application
         if: always()
         run: |
