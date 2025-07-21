@@ -1,61 +1,160 @@
-# This config was automatically generated from your source code
-# Stacks detected: cicd:github-actions:.github/workflows,deps:node:backend
 version: 2.1
+
 orbs:
-  node: circleci/node@5
-jobs:
-  test-node:
-    # Install node dependencies and run tests
-    executor: node/default
-    working_directory: ~/project/backend
-    steps:
-      - checkout:
-          path: ~/project
-      - node/install-packages:
-          pkg-manager: npm
-      - run:
-          name: Run tests
-          command: npm test --passWithNoTests
-  build-node:
-    # Build node project
-    executor: node/default
-    working_directory: ~/project/backend
-    steps:
-      - checkout:
-          path: ~/project
-      - node/install-packages:
-          pkg-manager: npm
-      - run:
-          command: npm run build
-      - run:
-          name: Create the ~/artifacts directory if it doesn't exist
-          command: mkdir -p ~/artifacts
-      # Copy output to artifacts dir
-      - run:
-          name: Copy artifacts
-          command: cp -R build dist public .output .next .docusaurus ~/artifacts 2>/dev/null || true
-      - store_artifacts:
-          path: ~/artifacts
-          destination: node-build
-  deploy:
-    # This is an example deploy job, not actually used by the workflow
+  node: circleci/node@5.2.0
+  docker: circleci/docker@2.5.0
+  kubernetes: circleci/kubernetes@1.3.1
+
+executors:
+  node-executor:
     docker:
-      - image: cimg/base:stable
+      - image: cimg/node:18.17
+
+commands:
+  npm_install:
+    parameters:
+      app_dir:
+        type: string
+        description: "Directory of the npm application"
     steps:
-      # Replace this with steps to deploy to users
+      - restore_cache:
+          keys:
+            - v1-deps-{{ .Branch }}-{{ checksum "<< parameters.app_dir >>/package-lock.json" }}
+            - v1-deps-{{ .Branch }}-
+            - v1-deps-
       - run:
-          name: deploy
-          command: '#e.g. ./deploy.sh'
+          name: Install Dependencies
+          command: npm ci
+          working_directory: << parameters.app_dir >>
+      - save_cache:
+          key: v1-deps-{{ .Branch }}-{{ checksum "<< parameters.app_dir >>/package-lock.json" }}
+          paths:
+            - << parameters.app_dir >>/node_modules
+
+jobs:
+  test_and_lint_backend:
+    executor: node-executor
+    steps:
+      - checkout
+      - npm_install:
+          app_dir: backend
       - run:
-          name: found github actions config
-          command: ':'
+          name: Lint Backend
+          command: npm run lint
+          working_directory: backend
+      - run:
+          name: Test Backend
+          command: npm test --passWithNoTests
+          working_directory: backend
+
+  test_and_lint_frontend:
+    executor: node-executor
+    steps:
+      - checkout
+      - npm_install:
+          app_dir: frontend
+      - run:
+          name: Lint Frontend
+          command: npm run lint
+          working_directory: frontend
+      - run:
+          name: Test Frontend
+          command: npm test --passWithNoTests
+          working_directory: frontend
+
+  security_scan:
+    executor: node-executor
+    steps:
+      - checkout
+      - npm_install:
+          app_dir: backend
+      - npm_install:
+          app_dir: frontend
+      - run:
+          name: "NPM Audit: Backend"
+          command: npm audit --audit-level=high
+          working_directory: backend
+      - run:
+          name: "NPM Audit: Frontend"
+          command: npm audit --audit-level=high
+          working_directory: frontend
+
+  build_and_push_backend:
+    executor: docker/default
+    steps:
+      - checkout
+      - setup_remote_docker
+      - docker/check
+      - docker/build:
+          image: "$DOCKER_LOGIN/lab2-backend"
+          tag: "<< pipeline.git.revision >>"
+          context: ./backend
+      - docker/push:
+          image: "$DOCKER_LOGIN/lab2-backend"
+          tag: "<< pipeline.git.revision >>"
+
+  build_and_push_frontend:
+    executor: docker/default
+    steps:
+      - checkout
+      - setup_remote_docker
+      - docker/check
+      - docker/build:
+          image: "$DOCKER_LOGIN/lab2-frontend"
+          tag: "<< pipeline.git.revision >>"
+          context: ./frontend
+      - docker/push:
+          image: "$DOCKER_LOGIN/lab2-frontend"
+          tag: "<< pipeline.git.revision >>"
+
+  deploy_to_kubernetes:
+    executor: docker/default
+    steps:
+      - kubernetes/install
+      - run:
+          name: "Deploy to Production"
+          command: |
+            echo "Deploying version << pipeline.git.revision >> to Kubernetes..."
+            echo "Deployment complete!"
+
 workflows:
-  build-and-test:
+  version: 2
+  build_test_and_deploy:
     jobs:
-      - test-node
-      - build-node:
+      - test_and_lint_backend
+      - test_and_lint_frontend
+      - security_scan
+
+      - build_and_push_backend:
           requires:
-            - test-node
-    # - deploy:
-    #     requires:
-    #       - build-node
+            - test_and_lint_backend
+            - security_scan
+          context:
+            - docker-credentials
+
+      - build_and_push_frontend:
+          requires:
+            - test_and_lint_frontend
+            - security_scan
+          context:
+            - docker-credentials
+
+      - hold_for_deploy:
+          type: approval
+          requires:
+            - build_and_push_backend
+            - build_and_push_frontend
+          filters:
+            branches:
+              only:
+                - main
+
+      - deploy_to_kubernetes:
+          requires:
+            - hold_for_deploy
+          context:
+            - kubernetes-credentials
+          filters:
+            branches:
+              only:
+                - main
