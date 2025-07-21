@@ -88,41 +88,10 @@ jobs:
         run: |
           echo "=== Backend Security Audit ==="
           cd backend
-          npm audit --audit-level=high || echo "Backend audit completed with warnings"
+          npm audit --audit-level=high || true
           cd ../frontend
           echo "=== Frontend Security Audit ==="
-          npm audit --audit-level=high || echo "Frontend audit completed with warnings"
-
-      - name: 🏗️ Start application for ZAP scan
-        run: |
-          # Start the application using docker compose
-          docker compose up -d frontend backend
-          echo "Waiting for application to be ready..."
-          sleep 30
-          
-          # Check if application is accessible
-          if curl -f http://localhost:3000 >/dev/null 2>&1; then
-            echo "Application is ready for ZAP scan"
-            echo "app-ready=true" >> $GITHUB_OUTPUT
-          else
-            echo "Application is not accessible, skipping ZAP scan"
-            echo "app-ready=false" >> $GITHUB_OUTPUT
-          fi
-        id: app-check
-
-      - name: 🛡️ Run OWASP ZAP security scan
-        if: steps.app-check.outputs.app-ready == 'true'
-        uses: zaproxy/action-full-scan@v0.8.0
-        with:
-          target: 'http://localhost:3000'
-          rules_file_name: '.zap/rules.tsv'
-          cmd_options: '-a'
-
-      - name: ℹ️ Skip ZAP scan - application not available
-        if: steps.app-check.outputs.app-ready == 'false'
-        run: |
-          echo "Skipping ZAP security scan - application is not running on localhost:3000"
-          echo "This is normal for security scans that run before the application is deployed"
+          npm audit --audit-level=high || true
 
       - name: 🧹 Cleanup application
         if: always()
@@ -137,6 +106,40 @@ jobs:
           else
             echo "status=failed" >> $GITHUB_OUTPUT
           fi
+
+  # ========================================
+  # DYNAMIC APPLICATION SECURITY TESTING (DAST)
+  # ========================================
+  dast-scan:
+    name: 🛡️ Dynamic Security Scan (ZAP)
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+      - name: 🔐 Login to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: 🏗️ Start application for ZAP scan
+        run: |
+          docker run -d --name backend -p 3000:3000 ${{ needs.build.outputs.backend-image }}
+          docker run -d --name frontend -p 8080:8080 ${{ needs.build.outputs.frontend-image }}
+          echo "Waiting for application to be ready..."
+          sleep 30
+      - name: 🛡️ Run OWASP ZAP security scan
+        uses: zaproxy/action-full-scan@v0.8.0
+        with:
+          target: 'http://localhost:8080'
+          rules_file_name: '.zap/rules.tsv'
+          cmd_options: '-a'
+      - name: 🧹 Cleanup application
+        if: always()
+          run: |
+            docker stop backend frontend || true
+            docker rm backend frontend || true
 
   # ========================================
   # CODE QUALITY & TESTING
@@ -229,7 +232,6 @@ jobs:
         id: build-backend
         uses: docker/build-push-action@v5
         with:
-          context: ./backend
           push: true
           tags: |
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/backend:${{ github.sha }}
@@ -242,7 +244,6 @@ jobs:
         id: build-frontend
         uses: docker/build-push-action@v5
         with:
-          context: ./frontend
           push: true
           tags: |
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/frontend:${{ github.sha }}
@@ -271,7 +272,7 @@ jobs:
   monitoring:
     name: 📊 Monitoring & Alerts
     runs-on: ubuntu-latest
-    needs: build
+    needs: [build, dast-scan]
     if: always()
     steps:
       - name: 📥 Checkout code
