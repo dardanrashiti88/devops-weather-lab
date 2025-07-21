@@ -95,6 +95,7 @@ jobs:
           image: "$DOCKER_LOGIN/lab2-backend"
           tag: "<< pipeline.git.revision >>"
           dockerfile: ./backend/Dockerfile
+          path: ./backend
       - docker/push:
           image: "$DOCKER_LOGIN/lab2-backend"
           tag: "<< pipeline.git.revision >>"
@@ -112,6 +113,7 @@ jobs:
           image: "$DOCKER_LOGIN/lab2-frontend"
           tag: "<< pipeline.git.revision >>"
           dockerfile: ./frontend/Dockerfile
+          path: ./frontend
       - docker/push:
           image: "$DOCKER_LOGIN/lab2-frontend"
           tag: "<< pipeline.git.revision >>"
