@@ -9,7 +9,7 @@ resources:
   - mysql-persistent-volume.yaml
   - mysql-init-configmap.yaml
   - mysql-service.yaml
-  # - mysql-deployment.yaml
+  - mysql-deployment.yaml
   - backend-deployment.yaml
   - backend-service.yaml
   - prometheus-configmap.yaml
