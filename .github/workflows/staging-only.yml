@@ -143,4 +143,4 @@ jobs:
       - name: ✅ Staging deployment complete
         run: |
           echo "✅ Staging deployment completed successfully!"
-          echo "🎉 Your application is now deployed to staging" 
+          echo "🎉 Your application is now deployed to staging"
